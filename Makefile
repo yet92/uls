@@ -1,36 +1,44 @@
-CC = clang
-CFLAGS = -std=c11 -Wall -Wextra -Werror -Wpedantic -I./libmx/inc -I./inc -g
+NAME = uls
+CFLAGS = -std=c11 $(addprefix -W, all extra error pedantic) -g
+COMP = clang
 
-SOURCE_FILES = *.c
-OBJECT_FILES = *.o
-OBJECT_DIR = ./obj
-SOURCE_DIR = ./src
+SRCDIR = src
+INCDIR = inc
+OBJDIR = obj
 
-LIBMX_DIR = ./libmx
-LIBMX_FILE = libmx.a
+LMXDIR = libmx
+LMXA := $(LMXDIR)/libmx.a
+LMXINC := $(LMXDIR)/inc
 
-SRC_PATH = $(wildcard $(SOURCE_DIR)/$(SOURCE_FILES))
-OUTPUT_FILE = uls
 
-all: clean obj ${OUTPUT_FILE}
+INCS = $(wildcard $(INCDIR)/*.h)
+SRCS = $(wildcard $(SRCDIR)/*.c)
+OBJS = $(addprefix $(OBJDIR)/, $(notdir $(SRCS:%.c=%.o)))
 
-obj:
-	if [ ! -d $(OBJECT_DIR) ]; then mkdir $(OBJECT_DIR); fi
-	$(CC) $(CFLAGS) -c $(SRC_PATH)
-	mv $(OBJECT_FILES) $(OBJECT_DIR)
+all: install
 
-${OUTPUT_FILE}:
-	@make -sC $(LIBMX_DIR)
-	$(CC) $(CFLAGS) -o $(OUTPUT_FILE) $(OBJECT_DIR)/$(OBJECT_FILES) $(LIBMX_DIR)/$(LIBMX_FILE) # delete -g
-	# ar -cq $(OUTPUT_FILE) $(OBJECT_DIR)/*.o
+install: $(LMXA) $(NAME)
 
-uninstall:
-	@make -sC $(LIBMX_DIR) $@
-	if [ -d $(OBJECT_DIR) ]; then rm -rf $(OBJECT_DIR); fi
-	if [ -f $(OUTPUT_FILE) ]; then rm $(OUTPUT_FILE); fi
-	if [ -f *.o ]; then rm *.o; fi
+$(NAME): $(OBJS)
+	clang $(CFLAGS) $(OBJS) -L$(LMXDIR) -lmx -o $@
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.c $(INCS)
+	@clang $(CFLAGS) -c $< -o $@ -I$(INCDIR) -I$(LMXINC)
+
+$(OBJS): | $(OBJDIR)
+
+$(OBJDIR):
+		@mkdir -p $@
+
+$(LMXA):
+		@make -sC $(LMXDIR)
 
 clean:
-	if [ -d $(OBJECT_DIR) ]; then rm -rf $(OBJECT_DIR); fi
+	@rm -rf $(OBJDIR)
 
-reinstall: uninstall all
+uninstall: clean
+	@make -sC $(LMXDIR) $@
+	@rm -rf $(OBJDIR)
+	@rm -rf $(NAME)
+
+reinstall: uninstall install

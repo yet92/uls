@@ -2,8 +2,8 @@
 
 void *mx_realloc(void *ptr, size_t size) {
 
-    size_t m_size = malloc_size(ptr); // swap to uncoment
-    // size_t m_size = size; 
+//    size_t m_size = malloc_size(ptr); // swap to uncoment
+     size_t m_size = size;
 
    
     

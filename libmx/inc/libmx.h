@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <malloc/malloc.h> // TODO: uncomment
+//#include <malloc/malloc.h> // TODO: uncomment
 // utils pack
 
 void mx_print_unicode(wchar_t c); // ready
