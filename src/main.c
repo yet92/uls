@@ -1,7 +1,7 @@
 #include "libmx.h"
 
 int main() {
-    mx_printstr("Helo Clin Clion\n");
+    mx_printstr("Hell\n");
     return 0;
 }
 
