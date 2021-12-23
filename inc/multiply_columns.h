@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#define TAB_SIZE 8
+
 void multiply_columns_print();
 
 #endif //ULS_MULTIPLY_COLUMNS_H

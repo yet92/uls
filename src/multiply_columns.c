@@ -3,41 +3,53 @@
 //
 #include "multiply_columns.h"
 
-void multiply_columns_print(char *path) {
+void print_tab(int max_len, char *name) {
+    int tab_number = 0;
+    int diff = max_len - mx_strlen(name);
+    tab_number = diff / TAB_SIZE;
+    if (diff % TAB_SIZE != 0) tab_number++;
+    for (int tab_index = 0; tab_index < tab_number; tab_index++) mx_printchar('\t');
+}
 
-    int length = 0;
-    struct dirent** dirents = generate_dirent_array(path, &length);
+void set_up_multiply_columns_data(int *column_width, int *columns_number, int *rows_number, struct dirent** dirents, int dirents_length) {
 
-    int max_file_name_length = calculate_max_name_length(dirents, length);
+    int max_file_name_length = calculate_max_name_length(dirents, dirents_length);
 
     struct winsize ts;
     ioctl(0, TIOCGWINSZ, &ts);
     int term_width = ts.ws_col;
 
-    int column_width = max_file_name_length;
-    int columns_number = term_width / column_width;
-    column_width = term_width / columns_number;
-    int rows_number = length / columns_number;
+    *column_width = max_file_name_length;
 
-    if (length % columns_number) rows_number++;
-    
-    mx_printint(rows_number);
-    mx_printchar('\n');
+    *column_width = (TAB_SIZE) - (max_file_name_length % (TAB_SIZE)) + max_file_name_length;
 
-    if (columns_number * rows_number < length) columns_number++;
 
+    *columns_number = term_width / *column_width;
+    *rows_number = dirents_length / *columns_number;
+
+    if ((dirents_length % *columns_number) && (*columns_number * (*rows_number) < dirents_length)) (*rows_number)++;
+
+}
+
+void multiply_columns_print(char *path) {
+
+    int length = 0;
+    struct dirent** dirents = generate_dirent_array(path, &length);
+
+    int column_width;
+    int columns_number;
+    int rows_number;
+
+    set_up_multiply_columns_data(&column_width, &columns_number, &rows_number, dirents, length);
 
     for (int row = 0; row < rows_number; row++) {
         for (int column = 0; column < columns_number; column++) {
             int index = row + (column * rows_number);
             // mx_printint(index);
             if (index >= length) continue;
-            int name_length = mx_strlen(dirents[index]->d_name);
             mx_printstr(dirents[index]->d_name);
-
-            for (int space_index = 0; space_index < column_width - name_length; space_index++) {
-                mx_printchar(' ');
-            }
+            if (index + rows_number < length)
+                print_tab(column_width, dirents[index]->d_name);
 
             
         }
