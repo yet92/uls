@@ -17,15 +17,23 @@ char *fmode_to_char(int mode) {
     return result;
 }
 
-char *get_usr_n_group(unsigned int uid, unsigned int gid) {
+char *get_usr(unsigned int uid) {
     char *result_str = NULL;
 
     struct passwd *pws;
-    struct group *grp;
 
     pws = getpwuid(uid);
     if(pws->pw_name != NULL)
         result_str = mx_strdup(pws->pw_name);
+
+    return result_str;
+}
+
+char *get_group(unsigned int gid) {
+
+    char *result_str = NULL;
+
+    struct group *grp;
 
     grp = getgrgid(gid);
     if(grp->gr_name != NULL) {
@@ -58,13 +66,23 @@ char *generate_lflg_string(char *name) {
     // LINKS
     char *links = NULL;
     links = mx_itoa(stat_info.st_nlink);
+
+    // 
+
     result_str = mx_strjoin(result_str, links);
 
     // USER AND GROUP
-    char *user_n_group = NULL; 
-    user_n_group = get_usr_n_group(stat_info.st_uid, stat_info.st_gid);
-    result_str = mx_strjoin(result_str, user_n_group);
+    char *user = NULL; 
+    user = get_usr(stat_info.st_uid);
     
+    //
+    result_str = mx_strjoin(result_str, user);
+    
+    char *group = NULL;
+    group = get_group(stat_info.st_gid);
+
+    result_str = mx_strjoin(result_str, group);
+
     // SIZE
     char *size = NULL;
     size = mx_itoa(stat_info.st_size);
@@ -77,7 +95,7 @@ char *generate_lflg_string(char *name) {
     printf("\n\n DATE: %s\n\n", date);
 
     free(size);
-    free(user_n_group);
+    free(user);
     free(links);
     free(rights);
     return result_str;
