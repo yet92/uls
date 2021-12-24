@@ -3,6 +3,7 @@
 
 #include "libmx.h"
 #include "flags.h"
+#include "utils.h"
 
 
 typedef struct s_lf_info {
@@ -17,18 +18,14 @@ typedef struct s_lf_info {
     int total;
 }              t_lf_info;
 
-t_lf_info* create_lf_info() {
-    t_lf_info* info = (t_lf_info *)malloc(sizeof(t_lf_info));
-    info->len_rights = 0;
-    info->len_links = 0;
-    info->len_user = 0;
-    info->len_group = 0;
-    info->len_size = 0;
-    info->total = 0;
-    return info;
-}
+t_lf_info* create_lf_info();
 
 void set_lf_info(t_lf_info** info, struct dirent** dirents, int length);
+int get_lf_table_width(t_lf_info *info);
+
+void l_flag_print(char *path);
+char *generate_lflg_string(char *path, t_lf_info *info, char *name);
+
 
 
 #endif

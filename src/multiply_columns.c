@@ -51,7 +51,7 @@ void multiply_columns_print(char *path) {
             if(opendir(dirents[index]->d_name)) {
                 mx_printstr(DRCT_CLR);
                 mx_printstr(dirents[index]->d_name);
-                mx_printstr(DFLT_CLR);
+                mx_printstr(DFLT_CLR); 
             } else {
                 mx_printstr(dirents[index]->d_name);
             }

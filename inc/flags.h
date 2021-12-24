@@ -8,8 +8,8 @@
 #include "pwd.h"
 #include "grp.h"
 
-char *generate_lflg_string(char *name);
-char *fmode_to_char(int mode);
+char *fmode_to_char(int mode, char *name);
+
 
 
 
