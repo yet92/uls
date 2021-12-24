@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
     argc = 0;
     argv = NULL;
     // multiply_columns_print("./libmx");
-    char *str = generate_lflg_string("src/l_flag.c");
+    char *str = generate_lflg_string("/Users/yzhuravlov/Applications");
     mx_printstr(str);
 
     return 0;
