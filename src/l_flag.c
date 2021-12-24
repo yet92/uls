@@ -55,7 +55,7 @@ char *get_group(unsigned int gid) {
 
     struct group *grp;
 
-    grp = getgrgid(4242);
+    grp = getgrgid(gid);
 
     if(grp) {
         result_str = mx_strdup(grp->gr_name);
@@ -102,6 +102,7 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
     int spaces = info->len_links - len_links;
     shift += spaces;
     mx_strcpy_inf(result_str + shift, links);
+    shift -= spaces;
     shift += (info->len_links + 1);
 
     // result_str = mx_strjoin(result_str, links);
