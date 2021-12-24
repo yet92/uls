@@ -50,14 +50,17 @@ char *get_usr(unsigned int uid) {
 
 char *get_group(unsigned int gid) {
 
+    // TODO: if grp == NULL add gid as string
     char *result_str = NULL;
 
     struct group *grp;
 
-    grp = getgrgid(gid);
+    grp = getgrgid(4242);
 
     if(grp) {
         result_str = mx_strdup(grp->gr_name);
+    } else {
+        result_str = mx_itoa(gid);
     }
 
     return result_str;
@@ -149,26 +152,31 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
     return result_str;
 }
 
-void set_lf_info(t_lf_info** info, struct dirent** dirents, int length) {
+void set_lf_info(t_lf_info** info, struct dirent** dirents, int length, char *path) {
     
     if (*info == NULL) {
         *info = create_lf_info();
     }
+
+    char *path_to_dir = NULL;
     
     for (int dir_index = 0; dir_index < length; dir_index++) {
         struct stat stat_info;
 
-        stat(dirents[dir_index]->d_name, &stat_info);
+        path_to_dir = mx_strjoin(path, dirents[dir_index]->d_name);
+
+        stat(path_to_dir, &stat_info);
 
         (*info)->total += stat_info.st_blocks;
 
         // RIGHTS
         char *rights = NULL;
-        rights = fmode_to_char(stat_info.st_mode, dirents[dir_index]->d_name);
+        rights = fmode_to_char(stat_info.st_mode, path_to_dir);
         
         int len_rights = mx_strlen(rights);
         if (len_rights >  (*info)->len_rights) (*info)->len_rights = len_rights;
 
+        free(path_to_dir);
         // LINKS
         char *links = NULL;
         links = mx_itoa(stat_info.st_nlink);
@@ -189,9 +197,11 @@ void set_lf_info(t_lf_info** info, struct dirent** dirents, int length) {
         
         char *group = NULL;
         group = get_group(stat_info.st_gid);
-
-        int len_group = mx_strlen(group);
-        if (len_group > (*info)->len_group) (*info)->len_group = len_group;
+        if (group) {
+            int len_group = mx_strlen(group);
+            if (len_group > (*info)->len_group) (*info)->len_group = len_group;
+        }
+        
 
         // SIZE
         char *size = NULL;
@@ -234,11 +244,12 @@ void l_flag_print(char *path) {
     int dir_length = 0;
     struct dirent** dirents = generate_dirent_array(full_path, &dir_length);
 
+
+    set_lf_info(&lf_info, dirents, dir_length, full_path);
+
+    mx_printerr("there\n");
+
     free(full_path);
-
-    set_lf_info(&lf_info, dirents, dir_length);
-        mx_printerr("there\n");
-
 
     for (int index = 0; index < dir_length; index++) {
 

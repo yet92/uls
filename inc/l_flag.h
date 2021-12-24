@@ -20,7 +20,7 @@ typedef struct s_lf_info {
 
 t_lf_info* create_lf_info();
 
-void set_lf_info(t_lf_info** info, struct dirent** dirents, int length);
+void set_lf_info(t_lf_info** info, struct dirent** dirents, int length, char *path);
 int get_lf_table_width(t_lf_info *info);
 
 void l_flag_print(char *path);
