@@ -13,6 +13,8 @@
 #include <unistd.h>
 
 #define TAB_SIZE 8
+#define DFLT_CLR  "\x1B[0m"
+#define DRCT_CLR "\x1B[36m"
 
 void multiply_columns_print();
 

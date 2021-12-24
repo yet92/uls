@@ -47,7 +47,16 @@ void multiply_columns_print(char *path) {
             int index = row + (column * rows_number);
             // mx_printint(index);
             if (index >= length) continue;
-            mx_printstr(dirents[index]->d_name);
+
+            if(opendir(dirents[index]->d_name)) {
+                mx_printstr(DRCT_CLR);
+                mx_printstr(dirents[index]->d_name);
+                mx_printstr(DFLT_CLR);
+            } else {
+                mx_printstr(dirents[index]->d_name);
+            }
+                
+            
             if (index + rows_number < length)
                 print_tab(column_width, dirents[index]->d_name);
 
