@@ -22,6 +22,7 @@ int calculate_max_name_length(struct dirent *dirents[], int dirents_size);
 struct dirent** generate_dirent_array(char *path, int *length, DIR** to_close_dir);
 
 void sort_args(char **args, int left, int right);
+bool is_file_exist(char* path);
 bool is_directory(char *name);
 int args_comparator(char* name1, char* name2);
 

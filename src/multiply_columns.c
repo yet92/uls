@@ -33,6 +33,33 @@ void set_up_multiply_columns_data(int *column_width, int *columns_number, int *r
     if (*rows_number == 0 || dirents_length % *columns_number != 0) (*rows_number)++;
 }
 
+void set_up_multiply_columns_data_for_files(int *column_width, int *columns_number, int *rows_number, char** files, int files_number) {
+    int max_file_name_length = 0;
+    for (int file_index = 0; file_index < files_number; file_index++) {
+        int length = mx_strlen(files[file_index]);
+        if (length > max_file_name_length) {
+            max_file_name_length = length;
+        }
+    }
+
+    struct winsize ts;
+    ioctl(0, TIOCGWINSZ, &ts);
+    int term_width = ts.ws_col;
+
+    *column_width = max_file_name_length;
+
+    *column_width = (TAB_SIZE) - (max_file_name_length % (TAB_SIZE)) + max_file_name_length;
+
+
+    *columns_number = term_width / *column_width;
+
+    // if (*column_width * *columns_number > term_width && *columns_number > 1) (*columns_number)--;
+    
+    *rows_number = files_number / *columns_number;
+
+    if (*rows_number == 0 || files_number % *columns_number != 0) (*rows_number)++;
+}
+
 void multiply_columns_print(char *path) {
 
     int length = 0;
@@ -69,4 +96,27 @@ void multiply_columns_print(char *path) {
     }
     closedir(dir);
 
+}
+
+void multiply_columns_files_print(char** pathes_to_files, int pathes_to_files_len) {
+    int column_width;
+    int columns_number;
+    int rows_number;
+
+    set_up_multiply_columns_data_for_files(&column_width, &columns_number, &rows_number, pathes_to_files, pathes_to_files_len);
+
+    for (int row = 0; row < rows_number; row++) {
+        for (int column = 0; column < columns_number; column++) {
+            int index = row + (column * columns_number);
+
+            if (index >= pathes_to_files_len) continue;
+
+            mx_printstr(pathes_to_files[index]);
+
+            if (index + rows_number < pathes_to_files_len)
+                print_tab(column_width, pathes_to_files[index]);
+        }
+        mx_printchar('\n');
+    }
+    
 }

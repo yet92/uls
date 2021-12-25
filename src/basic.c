@@ -127,3 +127,8 @@ void sort_args(char **args, int left, int right) {
         sort_args(args, left, j);
     }
 }
+
+bool is_file_exist(char* path) {
+    struct stat st;
+    return (stat(path, &st) == 0);
+}

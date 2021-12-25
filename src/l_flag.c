@@ -15,7 +15,22 @@ char *fmode_to_char(int mode, char *name) {
     char *result = mx_strnew(0);
     acl_t acl;
 
-    result = mx_strjoin_nleak(result, ( (S_ISDIR(mode)) ? "d" : "-"));
+    if(S_ISLNK(mode)) {
+        result = mx_strjoin_nleak(result, "l");
+    } else if(S_ISDIR(mode)) {
+        result = mx_strjoin_nleak(result, "d");
+    } else if(S_ISSOCK(mode)) {
+        result = mx_strjoin_nleak(result, "s");
+    } else if(S_ISFIFO(mode)) {
+        result = mx_strjoin_nleak(result, "p");
+    } else if(S_ISBLK(mode)) {
+        result = mx_strjoin_nleak(result, "b");
+    } else if(S_ISCHR(mode)) {
+        result = mx_strjoin_nleak(result, "c");
+    } else {
+        result = mx_strjoin_nleak(result, "-");
+    }
+
     result = mx_strjoin_nleak(result, ( (mode & S_IRUSR) ? "r" : "-"));
     result = mx_strjoin_nleak(result, ( (mode & S_IWUSR) ? "w" : "-"));
     result = mx_strjoin_nleak(result, ( (mode & S_IXUSR) ? "x" : "-"));
@@ -25,6 +40,7 @@ char *fmode_to_char(int mode, char *name) {
     result = mx_strjoin_nleak(result, ( (mode & S_IROTH) ? "r" : "-"));
     result = mx_strjoin_nleak(result, ( (mode & S_IWOTH) ? "w" : "-"));
     result = mx_strjoin_nleak(result, ( (mode & S_IXOTH) ? "x" : "-"));
+    
     if (listxattr(name, NULL, 0, XATTR_NOFOLLOW) > 0) {
         result = mx_strjoin_nleak(result, "@");
     } 
@@ -158,8 +174,25 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
     shift += (12 + 1);
 
     // printf("\n\n DATE: %s\n\n", date);
+    if(S_ISLNK(stat_info.st_mode)) {
+        ssize_t bytes, bufsize;
+        bufsize = stat_info.st_mode + 1;
 
-    mx_strcpy(result_str + shift, name);
+        if (stat_info.st_mode == 0){
+            bufsize = PATH_MAX;
+        }
+
+        char *buff = mx_strnew(bufsize);
+        bytes = readlink(path, buff, bufsize);
+        if (bytes != -1){
+            name = mx_strjoin(name, " -> ");
+            name = mx_strjoin_nleak(name, buff);
+        }
+        mx_strdel(&buff);
+        mx_strcpy(result_str + shift, name);
+
+    } else 
+        mx_strcpy(result_str + shift, name);
 
     free(group);
     free(date);
@@ -181,7 +214,7 @@ void set_lf_info_for_path(t_lf_info** info, char* full_path) {
         stat(full_path, &stat_info);
 
         (*info)->total += stat_info.st_blocks;
-        
+
         (*info)->len_rights = 11;
 
         // LINKS
@@ -251,9 +284,9 @@ int get_lf_table_width(t_lf_info *info) {
     return width;
 }
 
-void l_flag_print(char *path) {
+void l_flag_print(char *path, t_lf_info* lf_info) {
 
-    t_lf_info* lf_info  = NULL;
+    // t_lf_info* lf_info  = NULL;
 
     char* full_path = NULL;
 
@@ -265,7 +298,7 @@ void l_flag_print(char *path) {
     struct dirent** dirents = generate_dirent_array(full_path, &dir_length, &dir);
     mx_quicksort_dirent(dirents, 0, dir_length - 1);
 
-    set_lf_info(&lf_info, dirents, dir_length, full_path);
+    // set_lf_info(&lf_info, dirents, dir_length, full_path);
 
     free(full_path);
 
