@@ -10,7 +10,7 @@ int calculate_max_name_length(struct dirent *dirents[], int dirents_size) {
     return max_length;
 }
 
-struct dirent** generate_dirent_array(char *path, int *length) {
+struct dirent** generate_dirent_array(char *path, int *length, DIR** to_close_dir) {
     DIR* dir = opendir(path);
     int array_length = 0;
     struct dirent* dirent = NULL;
@@ -22,6 +22,7 @@ struct dirent** generate_dirent_array(char *path, int *length) {
     closedir(dir);
 
     dir = opendir(path);
+    *to_close_dir = dir;
     struct dirent** dirent_array = (struct dirent**)malloc(sizeof(struct dirent*) * array_length);
 
     int index = 0;
@@ -31,7 +32,7 @@ struct dirent** generate_dirent_array(char *path, int *length) {
             index++;
         }
     }
-    closedir(dir);
+ 
     *length = array_length;
     return dirent_array;
 }

@@ -15,22 +15,22 @@ char *fmode_to_char(int mode, char *name) {
     char *result = mx_strnew(0);
     acl_t acl;
 
-    result = mx_strjoin(result, ( (S_ISDIR(mode)) ? "d" : "-"));
-    result = mx_strjoin(result, ( (mode & S_IRUSR) ? "r" : "-"));
-    result = mx_strjoin(result, ( (mode & S_IWUSR) ? "w" : "-"));
-    result = mx_strjoin(result, ( (mode & S_IXUSR) ? "x" : "-"));
-    result = mx_strjoin(result, ( (mode & S_IRGRP) ? "r" : "-"));
-    result = mx_strjoin(result, ( (mode & S_IWGRP) ? "w" : "-"));
-    result = mx_strjoin(result, ( (mode & S_IXGRP) ? "x" : "-"));
-    result = mx_strjoin(result, ( (mode & S_IROTH) ? "r" : "-"));
-    result = mx_strjoin(result, ( (mode & S_IWOTH) ? "w" : "-"));
-    result = mx_strjoin(result, ( (mode & S_IXOTH) ? "x" : "-"));
+    result = mx_strjoin_nleak(result, ( (S_ISDIR(mode)) ? "d" : "-"));
+    result = mx_strjoin_nleak(result, ( (mode & S_IRUSR) ? "r" : "-"));
+    result = mx_strjoin_nleak(result, ( (mode & S_IWUSR) ? "w" : "-"));
+    result = mx_strjoin_nleak(result, ( (mode & S_IXUSR) ? "x" : "-"));
+    result = mx_strjoin_nleak(result, ( (mode & S_IRGRP) ? "r" : "-"));
+    result = mx_strjoin_nleak(result, ( (mode & S_IWGRP) ? "w" : "-"));
+    result = mx_strjoin_nleak(result, ( (mode & S_IXGRP) ? "x" : "-"));
+    result = mx_strjoin_nleak(result, ( (mode & S_IROTH) ? "r" : "-"));
+    result = mx_strjoin_nleak(result, ( (mode & S_IWOTH) ? "w" : "-"));
+    result = mx_strjoin_nleak(result, ( (mode & S_IXOTH) ? "x" : "-"));
     if (listxattr(name, NULL, 0, XATTR_NOFOLLOW) > 0) {
-        result = mx_strjoin(result, "@");
+        result = mx_strjoin_nleak(result, "@");
     } 
     if ((acl = acl_get_file(name, ACL_TYPE_EXTENDED))) {
         acl_free(acl);
-        result = mx_strjoin(result, "+");
+        result = mx_strjoin_nleak(result, "+");
     }
 
     return result;
@@ -145,6 +145,7 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
 
     mx_strcpy(result_str + shift, name);
 
+    free(group);
     free(date);
     free(size);
     free(user);
@@ -211,10 +212,14 @@ void set_lf_info(t_lf_info** info, struct dirent** dirents, int length, char *pa
         int len_size = mx_strlen(size);
         if (len_size > (*info)->len_size) (*info)->len_size = len_size;
 
-        // CHANGE DATE
-        char *date = NULL;
-        date = get_fchange_date(stat_info.st_mtimespec.tv_sec);
-
+        // // CHANGE DATE
+        // char *date = NULL;
+        // date = get_fchange_date(stat_info.st_mtimespec.tv_sec);
+        free(group);
+        free(size);
+        free(user);
+        free(links);
+        free(rights);
     }
 }
 
@@ -243,12 +248,11 @@ void l_flag_print(char *path) {
     else full_path = mx_strjoin(path, NULL);
 
     int dir_length = 0;
-    struct dirent** dirents = generate_dirent_array(full_path, &dir_length);
+    DIR* dir = NULL;
+    struct dirent** dirents = generate_dirent_array(full_path, &dir_length, &dir);
 
 
     set_lf_info(&lf_info, dirents, dir_length, full_path);
-
-    mx_printerr("there\n");
 
     free(full_path);
 
@@ -259,18 +263,21 @@ void l_flag_print(char *path) {
         if (path[mx_strlen(path) - 1] != '/') full_path = mx_strjoin(path, "/");
         else full_path = mx_strjoin(path, NULL);
 
-        full_path = mx_strjoin(full_path, dirents[index]->d_name);
+        full_path = mx_strjoin_nleak(full_path, dirents[index]->d_name);
 
         char *lflg_string = generate_lflg_string(full_path, lf_info, dirents[index]->d_name);
         
         free(full_path);
-        free(lflg_string);
+        
+
         mx_printstr(lflg_string);
         mx_printchar('\n');
 
+        free(lflg_string);
         // mx_strdel(&lflg_string);
 
     }
-
-
+    closedir(dir);
+    free(lf_info);
+    free(dirents);
 }

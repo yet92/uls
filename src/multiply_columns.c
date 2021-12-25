@@ -34,7 +34,8 @@ void set_up_multiply_columns_data(int *column_width, int *columns_number, int *r
 void multiply_columns_print(char *path) {
 
     int length = 0;
-    struct dirent** dirents = generate_dirent_array(path, &length);
+    DIR* dir = NULL;
+    struct dirent** dirents = generate_dirent_array(path, &length, &dir);
 
     int column_width;
     int columns_number;
@@ -64,6 +65,6 @@ void multiply_columns_print(char *path) {
         }
         mx_printchar('\n');
     }
-
+    closedir(dir);
 
 }
