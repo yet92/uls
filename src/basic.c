@@ -56,3 +56,74 @@ void basic_ls(char *path) {
 
     closedir(dir);
 }
+
+bool is_directory(char *name) {
+    DIR *directory = NULL;
+    directory = opendir(name);
+    
+    if(!directory) 
+        return false;
+
+    closedir(directory);
+    return true;
+}
+
+int args_comparator(char* name1, char* name2) {
+    bool is_name1_directory = is_directory(name1);
+    bool is_name2_directory = is_directory(name2);
+
+    if ((is_name2_directory && !is_name1_directory) || (is_name1_directory && !is_name2_directory)) 
+        return  is_name1_directory - is_name2_directory;
+
+    return mx_strcmp(name1, name2);
+
+}
+
+void sort_args(char **args, int left, int right) {
+    int i, j;
+    i = left;
+    j = right;
+
+    char *tmp, *anchor;
+    anchor = args[left + (right - left) / 2];
+    char* anchor_name = anchor;
+
+    char* i_name = NULL;
+    char* j_name = NULL;
+
+    do {
+
+        i_name = args[i];
+        j_name = args[j];
+
+
+        // while (i_len < anchor_len) {
+        while(args_comparator(anchor_name, i_name) > 0)
+        {
+            i++;
+            i_name = args[i];
+        }
+        // while (j_len > anchor_len) {
+        while(args_comparator(anchor_name, j_name) < 0)
+        {
+            j--;
+            j_name = args[j];
+        }
+        if (i <= j) {
+            if (args_comparator(i_name, j_name) > 0) {
+                tmp = args[i];
+                args[i] = args[j];
+                args[j] = tmp;
+            }
+            i++;
+            if (j > 0) j--;
+        }
+    } while (i <= j);
+
+    if (i < right) {
+        sort_args(args, i, right);
+    }
+    if (j > left) {
+        sort_args(args, left, j);
+    }
+}
