@@ -302,6 +302,9 @@ void l_flag_print(char *path, t_lf_info* lf_info) {
 
     free(full_path);
 
+    mx_printstr("total: ");
+    mx_printint(lf_info->total);
+    mx_printchar('\n');
     for (int index = 0; index < dir_length; index++) {
 
         char* full_path = NULL;
@@ -323,6 +326,6 @@ void l_flag_print(char *path, t_lf_info* lf_info) {
 
     }
     closedir(dir);
-    free(lf_info);
+    // free(lf_info);
     free(dirents);
 }

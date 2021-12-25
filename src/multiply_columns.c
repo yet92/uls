@@ -103,20 +103,23 @@ void multiply_columns_files_print(char** pathes_to_files, int pathes_to_files_le
     int columns_number;
     int rows_number;
 
+    int need_new_line = 0;
+
     set_up_multiply_columns_data_for_files(&column_width, &columns_number, &rows_number, pathes_to_files, pathes_to_files_len);
 
     for (int row = 0; row < rows_number; row++) {
         for (int column = 0; column < columns_number; column++) {
-            int index = row + (column * columns_number);
+            int index = row + (column * rows_number);
 
             if (index >= pathes_to_files_len) continue;
 
             mx_printstr(pathes_to_files[index]);
+            need_new_line = 1;
 
             if (index + rows_number < pathes_to_files_len)
                 print_tab(column_width, pathes_to_files[index]);
         }
-        mx_printchar('\n');
+        if (need_new_line) mx_printchar('\n');
     }
-    
+
 }

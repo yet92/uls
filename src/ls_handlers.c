@@ -81,8 +81,15 @@ void correct_args_handler(char** pathes, int pathes_number, t_flags* flags) {
 
     files_handler(pathes, pathes_number, flags, lf_info);
     directories_handler(pathes, pathes_number, flags, lf_info);
-
     free(lf_info);
+}
+
+bool is_nulls(char** pathes, int pathes_number) {
+    
+    for(int index = 0; index < pathes_number; index++) {
+        if (pathes[index]) return false;
+    }
+    return true;
 }
 
 void files_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_info* lf_info) {
@@ -96,30 +103,39 @@ void files_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_info* 
         }
     }
 
-    
+    int in_loop = 0;
     if (flags->l_flag) {
         for (int path_index = 0; path_index < pathes_number; path_index++) {
-            if (!is_directory(pathes[path_index])) {
-                char * l_flag_str = generate_lflg_string(pathes[path_index], lf_info, pathes[path_index]);
-                mx_printstr(l_flag_str);
-                free(l_flag_str);
-                pathes[path_index] = NULL;
+            if (pathes[path_index]) {
+                if (!is_directory(pathes[path_index])) {
+                    char * l_flag_str = generate_lflg_string(pathes[path_index], lf_info, pathes[path_index]);
+                    mx_printstr(l_flag_str);
+                    mx_printchar('\n');
+                    free(l_flag_str);
+                    pathes[path_index] = NULL;
+                    in_loop = 1;
+                }
             }
         }
     } else {
         char** files_pathes = (char**)malloc(sizeof(char*) * files_pathes_length);
         int f_pathes_index = 0;
         for (int path_index = 0; path_index < pathes_number; path_index++) {
-            if (!is_directory(pathes[path_index])) {
-                files_pathes[f_pathes_index] = pathes[path_index];
-                pathes[path_index] = NULL;
-                f_pathes_index++;
+            if (pathes[path_index]) {
+                if (!is_directory(pathes[path_index])) {
+                    files_pathes[f_pathes_index] = pathes[path_index];
+                    pathes[path_index] = NULL;
+                    f_pathes_index++;
+                    in_loop = 1;
+                }
             }
         }
         
         multiply_columns_files_print(files_pathes, f_pathes_index);
+
         free(files_pathes);
     }
+    if (in_loop && !is_nulls(pathes, pathes_number)) mx_printchar('\n');
 
 }
 
@@ -135,6 +151,9 @@ void directories_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_
             } else {
                 multiply_columns_print(pathes[path_index]);
             }
+            pathes[path_index] = NULL;
+            if (!is_nulls(pathes, pathes_number)) mx_printchar('\n');
         }
+        
     }
 }
