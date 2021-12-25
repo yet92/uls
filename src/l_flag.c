@@ -66,13 +66,29 @@ char *get_group(unsigned int gid) {
     return result_str;
 }
 
+void turn_to_old_date(char *clock, char *result_str) {
+    result_str = mx_strncpy(result_str, clock + 4, 6);
+    result_str = mx_strjoin(result_str, clock + 19);
+    result_str[13] = '\0';
+}
+
 char *get_fchange_date(const time_t date) {
     char *clock;
     char *result_str = mx_strnew(12);
 
     clock =  ctime(&(date));
 
-    result_str = mx_strncpy(result_str, clock + 4, 12);
+    long int date_diff = time(NULL) - date;
+    if(date_diff < 0) date_diff = -date_diff;
+
+    if(date_diff < 15768000) 
+        result_str = mx_strncpy(result_str, clock + 4, 12);
+    else {
+        result_str = mx_strncpy(result_str, clock + 4, 6);
+        result_str = mx_strjoin_nleak(result_str, " ");
+        result_str = mx_strjoin_nleak(result_str, clock + 19);
+        result_str[12] = '\0';
+    }
     return result_str;
 }
 
