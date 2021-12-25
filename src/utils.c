@@ -29,3 +29,57 @@ char *mx_strjoin_nleak(char const *s1, char const *s2) {
     return result;
 }
 
+int mx_quicksort_dirent(struct dirent **dirents, int left, int right) {
+
+    int i, j;
+    i = left;
+    j = right;
+
+    struct dirent *tmp, *anchor;
+    anchor = dirents[left + (right - left) / 2];
+    char* anchor_name = anchor->d_name;
+
+    int swaps = 0;
+
+    char* i_name = NULL;
+    char* j_name = NULL;
+
+    do {
+
+        i_name = dirents[i]->d_name;
+        j_name = dirents[j]->d_name;
+
+
+        // while (i_len < anchor_len) {
+        while(mx_strcmp(anchor_name, i_name) > 0)
+        {
+            i++;
+            i_name = dirents[i]->d_name;
+        }
+        // while (j_len > anchor_len) {
+        while(mx_strcmp(anchor_name, j_name) < 0)
+        {
+            j--;
+            j_name = dirents[j]->d_name;
+        }
+        if (i <= j) {
+            if (mx_strcmp(i_name, j_name) > 0) {
+                tmp = dirents[i];
+                dirents[i] = dirents[j];
+                dirents[j] = tmp;
+                swaps++;
+            }
+            i++;
+            if (j > 0) j--;
+        }
+    } while (i <= j);
+
+    if (i < right) {
+        swaps += mx_quicksort_dirent(dirents, i, right);
+    }
+    if (j > left) {
+        swaps += mx_quicksort_dirent(dirents, left, j);
+    }
+    
+    return swaps;
+}

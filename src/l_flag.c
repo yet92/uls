@@ -212,9 +212,7 @@ void set_lf_info(t_lf_info** info, struct dirent** dirents, int length, char *pa
         int len_size = mx_strlen(size);
         if (len_size > (*info)->len_size) (*info)->len_size = len_size;
 
-        // // CHANGE DATE
-        // char *date = NULL;
-        // date = get_fchange_date(stat_info.st_mtimespec.tv_sec);
+
         free(group);
         free(size);
         free(user);
@@ -250,7 +248,7 @@ void l_flag_print(char *path) {
     int dir_length = 0;
     DIR* dir = NULL;
     struct dirent** dirents = generate_dirent_array(full_path, &dir_length, &dir);
-
+    mx_quicksort_dirent(dirents, 0, dir_length - 1);
 
     set_lf_info(&lf_info, dirents, dir_length, full_path);
 
@@ -274,7 +272,6 @@ void l_flag_print(char *path) {
         mx_printchar('\n');
 
         free(lflg_string);
-        // mx_strdel(&lflg_string);
 
     }
     closedir(dir);
