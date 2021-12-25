@@ -25,10 +25,12 @@ void set_up_multiply_columns_data(int *column_width, int *columns_number, int *r
 
 
     *columns_number = term_width / *column_width;
+
+    // if (*column_width * *columns_number > term_width && *columns_number > 1) (*columns_number)--;
+    
     *rows_number = dirents_length / *columns_number;
 
-    if ((dirents_length % *columns_number) && (*columns_number * (*rows_number) < dirents_length)) (*rows_number)++;
-
+    if (*rows_number == 0 || dirents_length % *columns_number != 0) (*rows_number)++;
 }
 
 void multiply_columns_print(char *path) {
