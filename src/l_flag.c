@@ -101,7 +101,7 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
 
     struct stat stat_info;
     
-    stat(path, &stat_info);
+    lstat(path, &stat_info);
 
     // RIGHTS
     char *rights = NULL;
@@ -170,32 +170,20 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
     return result_str;
 }
 
-void set_lf_info(t_lf_info** info, struct dirent** dirents, int length, char *path) {
-    
-    if (*info == NULL) {
-        *info = create_lf_info();
-    }
+void set_lf_info_for_path(t_lf_info** info, char* full_path) {
+        
+        if (*info == NULL) {
+            *info = create_lf_info();
+        }
 
-    char *path_to_dir = NULL;
-    
-    for (int dir_index = 0; dir_index < length; dir_index++) {
         struct stat stat_info;
 
-        path_to_dir = mx_strjoin(path, dirents[dir_index]->d_name);
-
-        stat(path_to_dir, &stat_info);
+        stat(full_path, &stat_info);
 
         (*info)->total += stat_info.st_blocks;
-
-        // RIGHTS
-        // char *rights = NULL;
-        // rights = fmode_to_char(stat_info.st_mode, path_to_dir);
         
-        // int len_rights = mx_strlen(rights);
-        // if (len_rights >  (*info)->len_rights) (*info)->len_rights = len_rights;
         (*info)->len_rights = 11;
 
-        free(path_to_dir);
         // LINKS
         char *links = NULL;
         links = mx_itoa(stat_info.st_nlink);
@@ -234,6 +222,16 @@ void set_lf_info(t_lf_info** info, struct dirent** dirents, int length, char *pa
         free(size);
         free(user);
         free(links);
+}
+
+void set_lf_info(t_lf_info** info, struct dirent** dirents, int length, char *path) {
+
+    char *path_to_dir = NULL;
+    
+    for (int dir_index = 0; dir_index < length; dir_index++) {
+        path_to_dir = mx_strjoin(path, dirents[dir_index]->d_name);
+        set_lf_info_for_path(info, path_to_dir);
+        free(path_to_dir);
         // free(rights);
     }
 }
