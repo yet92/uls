@@ -16,6 +16,6 @@
 #define DFLT_CLR  "\x1B[0m"
 #define DRCT_CLR "\x1B[36m"
 
-void multiply_columns_print();
+void multiply_columns_print(char *path);
 
 #endif //ULS_MULTIPLY_COLUMNS_H

@@ -172,11 +172,12 @@ void set_lf_info(t_lf_info** info, struct dirent** dirents, int length, char *pa
         (*info)->total += stat_info.st_blocks;
 
         // RIGHTS
-        char *rights = NULL;
-        rights = fmode_to_char(stat_info.st_mode, path_to_dir);
+        // char *rights = NULL;
+        // rights = fmode_to_char(stat_info.st_mode, path_to_dir);
         
-        int len_rights = mx_strlen(rights);
-        if (len_rights >  (*info)->len_rights) (*info)->len_rights = len_rights;
+        // int len_rights = mx_strlen(rights);
+        // if (len_rights >  (*info)->len_rights) (*info)->len_rights = len_rights;
+        (*info)->len_rights = 11;
 
         free(path_to_dir);
         // LINKS
@@ -219,7 +220,7 @@ void set_lf_info(t_lf_info** info, struct dirent** dirents, int length, char *pa
         free(size);
         free(user);
         free(links);
-        free(rights);
+        // free(rights);
     }
 }
 
