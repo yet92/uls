@@ -27,14 +27,17 @@ char *get_path_error(char *path) {
     return error_message;
 }
 
-void pathes_errors_print(char** pathes, int pathes_number) {
+int pathes_errors_print(char** pathes, int pathes_number) {
+    int exit_status = 0;
     for (int path_index = 0; path_index < pathes_number; path_index++) {
         char * error_message = get_path_error(pathes[path_index]);
 
         if (error_message != NULL) {
+            exit_status = 1;
             mx_printerr(error_message);
             pathes[path_index] = NULL;
             mx_strdel(&error_message);
         }
     }
+    return exit_status;
 }

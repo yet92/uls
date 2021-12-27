@@ -100,12 +100,12 @@ void check_args(int argc, char **argv) {
     // print all files
     // print directories
 
-    pathes_errors_print(argv + argv_shift, argc - argv_shift);
+    int exit_status = pathes_errors_print(argv + argv_shift, argc - argv_shift);
 
     correct_args_handler(argv + argv_shift, argc - argv_shift, flag);
 
     free(flag);
-
+    exit(exit_status);
 }
 
 char *generate_full_path(char *path) {
