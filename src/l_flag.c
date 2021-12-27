@@ -8,6 +8,8 @@ t_lf_info* create_lf_info() {
     info->len_group = 0;
     info->len_size = 0;
     info->total = 0;
+
+
     return info;
 }
 
@@ -58,7 +60,8 @@ char *get_usr(unsigned int uid) {
     struct passwd *pws;
 
     pws = getpwuid(uid);
-    if(pws->pw_name != NULL)
+
+    if(pws != NULL)
         result_str = mx_strdup(pws->pw_name);
 
     return result_str;
@@ -118,6 +121,8 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
     struct stat stat_info;
     
     lstat(path, &stat_info);
+    
+
 
     // RIGHTS
     char *rights = NULL;
@@ -174,6 +179,7 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
     shift += (12 + 1);
 
     // printf("\n\n DATE: %s\n\n", date);
+
     if(S_ISLNK(stat_info.st_mode)) {
         ssize_t bytes, bufsize;
         bufsize = stat_info.st_mode + 1;
@@ -186,7 +192,11 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
         bytes = readlink(path, buff, bufsize);
         if (bytes != -1){
             name = mx_strjoin(name, " -> ");
-            name = mx_strjoin_nleak(name, buff);
+            if(!buff)
+                name = mx_strjoin_nleak(name, buff);
+            else 
+                name = mx_strjoin_nleak(name, buff);
+
         }
         mx_strdel(&buff);
         mx_strcpy(result_str + shift, name);
@@ -227,12 +237,11 @@ void set_lf_info_for_path(t_lf_info** info, char* full_path) {
 
         // USER AND GROUP
         char *user = NULL; 
-        user = get_usr(stat_info.st_uid);
-        
-
-        int len_user = mx_strlen(user);
-        if (len_user > (*info)->len_user) (*info)->len_user  = len_user;
-
+        user = get_usr(stat_info.st_uid);        
+        if(user) {
+            int len_user = mx_strlen(user);
+            if (len_user > (*info)->len_user) (*info)->len_user  = len_user;
+        }
         //ß
         
         char *group = NULL;
@@ -242,13 +251,14 @@ void set_lf_info_for_path(t_lf_info** info, char* full_path) {
             if (len_group > (*info)->len_group) (*info)->len_group = len_group;
         }
         
-
         // SIZE
         char *size = NULL;
         size = mx_itoa(stat_info.st_size);
 
         int len_size = mx_strlen(size);
         if (len_size > (*info)->len_size) (*info)->len_size = len_size;
+        
+
 
 
         free(group);
@@ -257,6 +267,7 @@ void set_lf_info_for_path(t_lf_info** info, char* full_path) {
         free(links);
 }
 
+
 void set_lf_info(t_lf_info** info, struct dirent** dirents, int length, char *path) {
 
     char *path_to_dir = NULL;
@@ -264,6 +275,9 @@ void set_lf_info(t_lf_info** info, struct dirent** dirents, int length, char *pa
     for (int dir_index = 0; dir_index < length; dir_index++) {
         path_to_dir = mx_strjoin(path, dirents[dir_index]->d_name);
         set_lf_info_for_path(info, path_to_dir);
+        
+        
+        
         free(path_to_dir);
         // free(rights);
     }
@@ -302,9 +316,9 @@ void l_flag_print(char *path, t_lf_info* lf_info) {
 
     free(full_path);
 
-    mx_printstr("total: ");
-    mx_printint(lf_info->total);
-    mx_printchar('\n');
+    // mx_printstr("total: ");
+    // mx_printint(lf_info->total);
+    // mx_printchar('\n');
     for (int index = 0; index < dir_length; index++) {
 
         char* full_path = NULL;

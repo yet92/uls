@@ -61,7 +61,6 @@ void correct_args_handler(char** pathes, int pathes_number, t_flags* flags) {
 
     t_lf_info* lf_info = NULL;
 
-
     for (int path_index = 0; path_index < pathes_number; path_index++) {
         if (pathes[path_index]) {
             if (is_directory(pathes[path_index])) {
@@ -70,6 +69,7 @@ void correct_args_handler(char** pathes, int pathes_number, t_flags* flags) {
                 struct dirent** dirents = generate_dirent_array(pathes[path_index], &dirents_length, &dir);
                 char* full_path = generate_full_path(pathes[path_index]);
                 set_lf_info(&lf_info, dirents, dirents_length, full_path);
+
                 free(full_path);
                 closedir(dir);
             } else {
