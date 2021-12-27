@@ -10,14 +10,14 @@ char *get_path_error(char *path) {
 
     if (!is_file_exist(path_without_slash)) {
         error_message = mx_strnew(0);
-        error_message = mx_strjoin_nleak(error_message, "./uls: ");
+        error_message = mx_strjoin_nleak(error_message, "uls: ");
         error_message = mx_strjoin_nleak(error_message, path);
         error_message = mx_strjoin_nleak(error_message, ": No such file or directory\n");
     }
     else if (path[path_len - 1] == '/') {
         if (opendir(path) == NULL) {
             error_message = mx_strnew(0);
-            error_message = mx_strjoin_nleak(error_message, "./uls: ");
+            error_message = mx_strjoin_nleak(error_message, "uls: ");
             error_message = mx_strjoin_nleak(error_message, path);
             error_message = mx_strjoin_nleak(error_message, ": Not a directory\n");
         }
