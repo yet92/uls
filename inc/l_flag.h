@@ -38,6 +38,8 @@ t_lf_info_node* create_lf_info_node();
 // void push_total_list(t_total** head, int total);
 t_lf_info_node* push_lf_info_list(t_lf_info_node** head);
 
+void free_lf_info_list(t_lf_info_node** head);
+
 void set_lf_info(t_lf_info** info, struct dirent** dirents, int length, char *path);
 int get_lf_table_width(t_lf_info *info);
 

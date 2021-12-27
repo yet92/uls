@@ -38,6 +38,22 @@ t_lf_info_node* push_lf_info_list(t_lf_info_node** head) {
     return NULL;
 }
 
+void free_lf_info_list(t_lf_info_node** head) {
+
+    t_lf_info_node* current = *head;
+    t_lf_info_node* next = NULL;
+
+    while (current)
+    {
+        free(current->lf_info);
+        next = current->next;
+        free(current);
+        current = next;
+    }
+    
+    *head = NULL;
+}
+
 char *fmode_to_char(int mode, char *name) {
     char *result = mx_strnew(0);
     acl_t acl;

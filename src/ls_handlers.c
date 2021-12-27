@@ -109,6 +109,9 @@ void correct_args_handler(char** pathes, int pathes_number, t_flags* flags) {
         current_lf_info = current_lf_info->next;
     }
     directories_handler(pathes, pathes_number, flags, &current_lf_info);
+
+    free_lf_info_list(&lf_info_list);
+
     // free(lf_info);
 }
 
