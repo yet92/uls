@@ -61,7 +61,10 @@ void correct_args_handler(char** pathes, int pathes_number, t_flags* flags) {
     // print files
     // print dirs
 
-    t_lf_info* lf_info = NULL;
+    // t_lf_info* lf_info = NULL;
+    t_lf_info_node* lf_info_list = NULL;
+    t_lf_info_node* current_lf_info = lf_info_list;
+    int has_files = 0;
 
     for (int path_index = 0; path_index < pathes_number; path_index++) {
         if (pathes[path_index]) {
@@ -70,33 +73,43 @@ void correct_args_handler(char** pathes, int pathes_number, t_flags* flags) {
                 DIR* dir;
                 struct dirent** dirents = generate_dirent_array(pathes[path_index], &dirents_length, &dir);
                 char* full_path = generate_full_path(pathes[path_index]);
-                set_lf_info(&lf_info, dirents, dirents_length, full_path);
+
+                t_lf_info_node* pushed = push_lf_info_list(&lf_info_list);
+
+                if (current_lf_info == NULL) current_lf_info = pushed;
+
+                set_lf_info(&(pushed->lf_info), dirents, dirents_length, full_path);
                 /*
                 lf_info->totals[index].index = path_index;
                 lf_info->totals[index].total = lf_info->total;
 
                 */
-                push_total_list(&lf_info->total_head, lf_info->total);
 
-                if (lf_info->current_total == NULL) {
-                    lf_info->current_total = lf_info->total_head;
-                }
-
-                lf_info->total = 0;
+                // lf_info->total = 0;
                 free(dirents);
                 free(full_path);
                 closedir(dir);
             } else {
-                set_lf_info_for_path(&lf_info, pathes[path_index]);
-                lf_info->total = 0;
+                
+                // TODO: edit if  -r
+                if (lf_info_list == NULL) {
+                    t_lf_info_node* pushed = push_lf_info_list(&lf_info_list);
+                    current_lf_info = pushed;
+                }
+                set_lf_info_for_path(&(lf_info_list->lf_info), pathes[path_index]);
+                has_files = 1;
+                // lf_info->total = 0;
             }
         }
     }
     
-
-    files_handler(pathes, pathes_number, flags, lf_info);
-    directories_handler(pathes, pathes_number, flags, lf_info);
-    free(lf_info);
+    
+    if (has_files) {
+        files_handler(pathes, pathes_number, flags, &current_lf_info);
+        current_lf_info = current_lf_info->next;
+    }
+    directories_handler(pathes, pathes_number, flags, &current_lf_info);
+    // free(lf_info);
 }
 
 bool is_nulls(char** pathes, int pathes_number) {
@@ -107,7 +120,7 @@ bool is_nulls(char** pathes, int pathes_number) {
     return true;
 }
 
-void files_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_info* lf_info) {
+void files_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_info_node** lf_info_current) {
 
     int files_pathes_length = 0;
     for (int path_index = 0; path_index < pathes_number; path_index++) {
@@ -123,7 +136,7 @@ void files_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_info* 
         for (int path_index = 0; path_index < pathes_number; path_index++) {
             if (pathes[path_index]) {
                 if (!is_directory(pathes[path_index])) {
-                    char * l_flag_str = generate_lflg_string(pathes[path_index], lf_info, pathes[path_index]);
+                    char * l_flag_str = generate_lflg_string(pathes[path_index], (*lf_info_current)->lf_info, pathes[path_index]);
                     mx_printstr(l_flag_str);
                     mx_printchar('\n');
                     free(l_flag_str);
@@ -132,6 +145,7 @@ void files_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_info* 
                 }
             }
         }
+        // *lf_info_current = (*lf_info_current)->next;
     } else {
         char** files_pathes = (char**)malloc(sizeof(char*) * files_pathes_length);
         int f_pathes_index = 0;
@@ -154,7 +168,7 @@ void files_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_info* 
 
 }
 
-void directories_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_info* lf_info) {
+void directories_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_info_node** lf_info_node) {
     for (int path_index = 0; path_index < pathes_number; path_index++) {
         if (pathes[path_index]) {
             if (pathes_number >= 2) {
@@ -163,12 +177,13 @@ void directories_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_
             }
             if (flags->l_flag) {
                 mx_printstr("total ");
-                mx_printint(lf_info->current_total->total_blocks);
+                // mx_printint(lf_info->current_total->total_blocks);
+                mx_printint((*lf_info_node)->lf_info->total);
                 mx_printchar('\n');
 
-                lf_info->current_total = lf_info->current_total->next;
 
-                l_flag_print(pathes[path_index], lf_info);
+                l_flag_print(pathes[path_index], (*lf_info_node)->lf_info);
+                (*lf_info_node) = (*lf_info_node)->next;
             } else {
                 multiply_columns_print(pathes[path_index]);
             }

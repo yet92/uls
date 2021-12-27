@@ -15,9 +15,9 @@ typedef struct s_flags {
 
 void check_args(int argc, char **argv);
 
-void files_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_info* lf_info);
+void files_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_info_node** lf_info);
 
-void directories_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_info* lf_info);
+void directories_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_info_node** lf_info);
 
 void correct_args_handler(char** pathes, int pathes_number, t_flags* flags);
 

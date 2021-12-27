@@ -9,31 +9,34 @@ t_lf_info* create_lf_info() {
     info->len_size = 0;
     info->total = 0;
 
-    info->total_head = NULL;
-    info->current_total = info->total_head;
-
     return info;
 }
 
-t_total* create_total_node(int total) {
-    t_total* node = (t_total*)malloc(sizeof(t_total));
+t_lf_info_node* create_lf_info_node() {
+
+    t_lf_info_node* node = (t_lf_info_node*)malloc(sizeof(t_lf_info_node));
+    node->lf_info = create_lf_info();
     node->next = NULL;
-    node->total_blocks = total;
     return node;
 }
 
-void push_total_list(t_total** head, int total) {
+t_lf_info_node* push_lf_info_list(t_lf_info_node** head) {
+
     if (*head == NULL) {
-        *head = create_total_node(total);
-    } else {
-        t_total* current = *head;
+        *head = create_lf_info_node();
+        return *head;
+    }
+    else {
+        t_lf_info_node* current = *head;
         while (current->next != NULL)
         {
             current = current->next;
         }
-        current->next = create_total_node(total);
+        current->next = create_lf_info_node();
+        return current->next;
     }
-} 
+    return NULL;
+}
 
 char *fmode_to_char(int mode, char *name) {
     char *result = mx_strnew(0);
