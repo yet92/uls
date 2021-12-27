@@ -70,6 +70,7 @@ void multiply_columns_print(char *path) {
     int columns_number;
     int rows_number;
 
+    mx_quicksort_dirent(dirents, 0, length - 1);
     set_up_multiply_columns_data(&column_width, &columns_number, &rows_number, dirents, length);
 
     for (int row = 0; row < rows_number; row++) {
@@ -106,6 +107,7 @@ void multiply_columns_files_print(char** pathes_to_files, int pathes_to_files_le
     int need_new_line = 0;
 
     set_up_multiply_columns_data_for_files(&column_width, &columns_number, &rows_number, pathes_to_files, pathes_to_files_len);
+    sort_args(pathes_to_files, 0, pathes_to_files_len - 1);
 
     for (int row = 0; row < rows_number; row++) {
         for (int column = 0; column < columns_number; column++) {

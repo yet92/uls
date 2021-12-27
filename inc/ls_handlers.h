@@ -5,6 +5,7 @@
 #include "l_flag.h"
 #include "ls_errors.h"
 #include "multiply_columns.h"
+#include "one_column.h"
 
 typedef struct s_flags {
     bool no_flag;

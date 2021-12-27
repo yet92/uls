@@ -57,9 +57,14 @@ void check_args(int argc, char **argv) {
     t_flags *flag = create_t_flag();
     if(argc == 1) {
         flag->no_flag = true;
-        multiply_columns_print(".");
+        if (isatty(1)) {
+            multiply_columns_print(".");
+        } else {
+            one_column_print(".");
+        }
         return;
     }
+
 
     int argv_shift = 0;
     if(argc >= 2) {
@@ -224,7 +229,11 @@ void files_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_info_n
             }
         }
         
-        multiply_columns_files_print(files_pathes, f_pathes_index);
+        if (isatty(1)) {
+            multiply_columns_files_print(files_pathes, f_pathes_index);
+        } else {
+            one_column_files_print(files_pathes, f_pathes_index);
+        }
 
         free(files_pathes);
     }
@@ -249,7 +258,13 @@ void directories_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_
                 l_flag_print(pathes[path_index], (*lf_info_node)->lf_info);
                 (*lf_info_node) = (*lf_info_node)->next;
             } else {
-                multiply_columns_print(pathes[path_index]);
+
+                if (isatty(1)) {
+                    multiply_columns_print(pathes[path_index]);
+                } else {
+                    one_column_print(pathes[path_index]);
+                }
+
             }
             pathes[path_index] = NULL;
             if (!is_nulls(pathes, pathes_number)) mx_printchar('\n');

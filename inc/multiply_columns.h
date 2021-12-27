@@ -11,6 +11,7 @@
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "utils.h"
 
 #define TAB_SIZE 8
 #define DFLT_CLR  "\x1B[0m"
