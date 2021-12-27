@@ -37,6 +37,18 @@ struct dirent** generate_dirent_array(char *path, int *length, DIR** to_close_di
     return dirent_array;
 }
 
+int get_dirents_number(char* path) {
+    DIR* dir = NULL;
+    int dirents_length = 0;
+
+    struct dirent **dirents = generate_dirent_array(path, &dirents_length, &dir);
+
+    free(dirents);
+    closedir(dir);
+
+    return dirents_length;
+}
+
 bool check_name(char* name) {
     if (mx_strcmp(name, ".") == 0 || mx_strcmp(name, "..") == 0 || name[0] == '.') return false;
     return true;

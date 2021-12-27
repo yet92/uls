@@ -249,22 +249,26 @@ void directories_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_
                 mx_printstr(":\n");
             }
             if (flags->l_flag) {
-                mx_printstr("total ");
-                // mx_printint(lf_info->current_total->total_blocks);
-                mx_printint((*lf_info_node)->lf_info->total);
-                mx_printchar('\n');
+                if (get_dirents_number(pathes[path_index]) != 0)
+                {
+                    mx_printstr("total ");
+                    // mx_printint(lf_info->current_total->total_blocks);
+                    mx_printint((*lf_info_node)->lf_info->total);
+                    mx_printchar('\n');
 
 
-                l_flag_print(pathes[path_index], (*lf_info_node)->lf_info);
-                (*lf_info_node) = (*lf_info_node)->next;
-            } else {
-
-                if (isatty(1)) {
-                    multiply_columns_print(pathes[path_index]);
-                } else {
-                    one_column_print(pathes[path_index]);
+                    l_flag_print(pathes[path_index], (*lf_info_node)->lf_info);
+                    (*lf_info_node) = (*lf_info_node)->next;
                 }
-
+            } else {
+                
+                if (get_dirents_number(pathes[path_index]) != 0) {
+                    if (isatty(1)) {
+                        multiply_columns_print(pathes[path_index]);
+                    } else {
+                        one_column_print(pathes[path_index]);
+                    }
+                }
             }
             pathes[path_index] = NULL;
             if (!is_nulls(pathes, pathes_number)) mx_printchar('\n');
