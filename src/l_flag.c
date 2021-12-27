@@ -137,7 +137,6 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
     lstat(path, &stat_info);
     
 
-
     // RIGHTS
     char *rights = NULL;
     rights = fmode_to_char(stat_info.st_mode, path);
@@ -229,7 +228,10 @@ void set_lf_info_for_path(t_lf_info** info, char* full_path) {
 
         struct stat stat_info;
 
-        stat(full_path, &stat_info);
+
+        lstat(full_path, &stat_info);
+
+        // printf("%s: %hu\n", full_path, stat_info.st_size);
 
         (*info)->total += stat_info.st_blocks;
 
@@ -265,8 +267,6 @@ void set_lf_info_for_path(t_lf_info** info, char* full_path) {
 
         int len_size = mx_strlen(size);
         if (len_size > (*info)->len_size) (*info)->len_size = len_size;
-        
-
 
 
         free(group);
@@ -283,8 +283,6 @@ void set_lf_info(t_lf_info** info, struct dirent** dirents, int length, char *pa
     for (int dir_index = 0; dir_index < length; dir_index++) {
         path_to_dir = mx_strjoin(path, dirents[dir_index]->d_name);
         set_lf_info_for_path(info, path_to_dir);
-        
-        
         
         free(path_to_dir);
         // free(rights);
