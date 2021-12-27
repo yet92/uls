@@ -38,6 +38,8 @@ void check_args(int argc, char **argv) {
 
     correct_args_handler(argv + argv_shift, argc - argv_shift, flag);
 
+    free(flag);
+
 }
 
 char *generate_full_path(char *path) {
@@ -69,7 +71,7 @@ void correct_args_handler(char** pathes, int pathes_number, t_flags* flags) {
                 struct dirent** dirents = generate_dirent_array(pathes[path_index], &dirents_length, &dir);
                 char* full_path = generate_full_path(pathes[path_index]);
                 set_lf_info(&lf_info, dirents, dirents_length, full_path);
-
+                free(dirents);
                 free(full_path);
                 closedir(dir);
             } else {
