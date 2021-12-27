@@ -111,6 +111,20 @@ char *get_fchange_date(const time_t date) {
     return result_str;
 }
 
+char *get_link(char* path) {
+    ssize_t bytes, bufsize;
+    bufsize = PATH_MAX;
+
+    // if (mode == 0){
+    //     bufsize = PATH_MAX;
+    // }
+
+    char *link_to = mx_strnew(bufsize);
+    // char *buff = NULL;
+    bytes = readlink(path, link_to, bufsize);
+    return link_to;
+}
+
 char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
     
     
@@ -164,7 +178,14 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
     char *size = NULL;
     size = mx_itoa(stat_info.st_size);
     
+    // mx_printint(info->len_group);
+    // mx_printchar('\n');
+    // mx_printint(mx_strlen(size));
+    // mx_printchar('\n');
+
     spaces = info->len_size - mx_strlen(size);
+    // mx_printint(spaces);
+    // mx_printchar('\n');
     shift += spaces;
     mx_strcpy_inf(result_str + shift, size);
     shift -= spaces;
@@ -180,29 +201,16 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
 
     // printf("\n\n DATE: %s\n\n", date);
 
+    mx_strcpy(result_str + shift, name);
+
+    char* link_to = NULL;
     if(S_ISLNK(stat_info.st_mode)) {
-        ssize_t bytes, bufsize;
-        bufsize = stat_info.st_mode + 1;
+        link_to = get_link(path);
+        result_str = mx_strjoin_nleak(result_str, " -> ");
+        result_str = mx_strjoin_nleak(result_str, link_to);
+        free(link_to);
+    }
 
-        if (stat_info.st_mode == 0){
-            bufsize = PATH_MAX;
-        }
-
-        char *buff = mx_strnew(bufsize);
-        bytes = readlink(path, buff, bufsize);
-        if (bytes != -1){
-            name = mx_strjoin(name, " -> ");
-            if(!buff)
-                name = mx_strjoin_nleak(name, buff);
-            else 
-                name = mx_strjoin_nleak(name, buff);
-
-        }
-        mx_strdel(&buff);
-        mx_strcpy(result_str + shift, name);
-
-    } else 
-        mx_strcpy(result_str + shift, name);
 
     free(group);
     free(date);
