@@ -19,15 +19,15 @@ void check_flag(char *data, t_flags *flag, char* illegal_flag_option) {
     for (int data_index = 1; data_index < mx_strlen(data); data_index++) {
         switch (data[data_index])
         {
-        case 'l':
-            flag->l_flag = true;
-            flag->no_flag = false;
-            break;
-        
-        default:
-            *illegal_flag_option = data[data_index];
-            flag->wrong_flag = true;
-            break;
+            case 'l':
+                flag->l_flag = true;
+                flag->no_flag = false;
+                break;
+            
+            default:
+                *illegal_flag_option = data[data_index];
+                flag->wrong_flag = true;
+                return;
         }
     }
 }
@@ -75,7 +75,7 @@ void check_args(int argc, char **argv) {
                 check_flag(argv[1], flag, &illegal_flag);
                 
                 if (flag->wrong_flag) {
-                    mx_printerr("ls: illegal option -- ");
+                    mx_printerr("uls: illegal option -- ");
                     mx_printerr(&illegal_flag); // TODO: errors?
                     mx_printerr("\n");
                     mx_printerr("usage: uls [-l] [file ...]\n");
