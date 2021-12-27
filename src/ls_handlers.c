@@ -3,27 +3,88 @@
 t_flags *create_t_flag() {
     t_flags *flag = (t_flags*)malloc(sizeof(t_flags));
     flag->l_flag = false;
-    flag->no_flag = false;
+    flag->no_flag = true;
     
 
     return flag;
 }
 
+void check_flag(char *data, t_flags *flag, char* illegal_flag_option) {
+    // if(!mx_strcmp(data, "-l"))
+    //     flag->l_flag = true;
+    // // write all flags
+    // else 
+    //     flag->wrong_flag = true;
+    // TODO: swith no flag to false
+    for (int data_index = 1; data_index < mx_strlen(data); data_index++) {
+        switch (data[data_index])
+        {
+        case 'l':
+            flag->l_flag = true;
+            flag->no_flag = false;
+            break;
+        
+        default:
+            *illegal_flag_option = data[data_index];
+            flag->wrong_flag = true;
+            break;
+        }
+    }
+}
+
+void l_flag_without_args() {
+    t_lf_info* lf_info = NULL;
+
+    int dirents_length = 0;
+    DIR* dir;
+    struct dirent** dirents = generate_dirent_array(".", &dirents_length, &dir);
+    char* full_path = generate_full_path(".");
+
+    set_lf_info(&lf_info, dirents, dirents_length, full_path);
+
+    mx_printstr("total ");
+    mx_printint(lf_info->total);
+    mx_printchar('\n');
+    l_flag_print(full_path, lf_info);
+
+    free(full_path);
+    free(dirents);
+    closedir(dir);
+}
+
 void check_args(int argc, char **argv) {
     // int file_counter = argc;
     t_flags *flag = create_t_flag();
-    if(argc == 1)
+    if(argc == 1) {
         flag->no_flag = true;
-    
+        multiply_columns_print(".");
+        return;
+    }
 
     int argv_shift = 0;
     if(argc >= 2) {
         if(IS_FLAG(argv[1])) {
             //check which flag
-            flag->l_flag = true;
-            argv_shift = 2;
+            if (mx_strlen(argv[1]) > 1) {
+                char illegal_flag = ' ';
+                check_flag(argv[1], flag, &illegal_flag);
+                
+                if (flag->wrong_flag) {
+                    mx_printerr("ls: illegal option -- ");
+                    mx_printerr(&illegal_flag); // TODO: errors?
+                    mx_printerr("\n");
+                    mx_printerr("usage: uls [-l] [file ...]\n");
+                    exit(1);
+                }
+
+                if (argc == 2) {
+                    l_flag_without_args();
+                    return;
+                }
+
+                argv_shift = 2;
+            }
         } else {
-            flag->no_flag = true;
             argv_shift = 1;
         }
     }
