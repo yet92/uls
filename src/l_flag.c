@@ -54,6 +54,22 @@ void free_lf_info_list(t_lf_info_node** head) {
     *head = NULL;
 }
 
+char *fmode_thirdch_check(int mode, int triad) {
+    if (!(mode & triad) && (S_ISUID & mode) && triad != S_IXGRP && triad != S_IXOTH){
+        return "S";
+    }else if (!(mode & triad) && (S_ISVTX & mode)){
+        return "T";
+    }else if ((mode & triad) && (S_ISVTX & mode)  && triad != S_IXUSR && triad != S_IXGRP){
+        return "t";
+    }else if ((mode & triad) && (S_ISUID & mode) && triad != S_IXGRP){
+        return "s";
+    } else if ((mode & triad)){
+        return "x";
+    } else {
+        return "-";
+    }
+}
+
 char *fmode_to_char(int mode, char *name) {
     char *result = mx_strnew(0);
     acl_t acl;
@@ -76,27 +92,13 @@ char *fmode_to_char(int mode, char *name) {
 
     result = mx_strjoin_nleak(result, ( (mode & S_IRUSR) ? "r" : "-"));
     result = mx_strjoin_nleak(result, ( (mode & S_IWUSR) ? "w" : "-"));
-    result = mx_strjoin_nleak(result, ( (mode & S_IXUSR) ? "x" : "-"));
+    result = mx_strjoin_nleak(result, fmode_thirdch_check(mode, S_IXUSR));
     result = mx_strjoin_nleak(result, ( (mode & S_IRGRP) ? "r" : "-"));
     result = mx_strjoin_nleak(result, ( (mode & S_IWGRP) ? "w" : "-"));
-    result = mx_strjoin_nleak(result, ( (mode & S_IXGRP) ? "x" : "-"));
+    result = mx_strjoin_nleak(result, fmode_thirdch_check(mode, S_IXGRP));
     result = mx_strjoin_nleak(result, ( (mode & S_IROTH) ? "r" : "-"));
     result = mx_strjoin_nleak(result, ( (mode & S_IWOTH) ? "w" : "-"));
-
-    if (!(mode & S_IXUSR) && (S_ISUID & mode)){
-        result = mx_strjoin_nleak(result, "S");
-    }else if (!(mode & S_IXUSR) && (S_ISVTX & mode)){
-         result = mx_strjoin_nleak(result, "T");
-    }else if ((mode & S_IXUSR) && (S_ISVTX & mode)){
-         result = mx_strjoin_nleak(result, "t");
-    }else if ((mode & S_IXUSR) && (S_ISUID & mode)){
-        result = mx_strjoin_nleak(result, "s");
-    } else if ((mode & S_IXUSR) && (mode & S_IXOTH)){
-        result = mx_strjoin_nleak(result, "x");
-    } else {
-        result = mx_strjoin_nleak(result, "-");
-    }
-
+    result = mx_strjoin_nleak(result, fmode_thirdch_check(mode, S_IXOTH));
     
     if (listxattr(name, NULL, 0, XATTR_NOFOLLOW) > 0) {
         result = mx_strjoin_nleak(result, "@");
