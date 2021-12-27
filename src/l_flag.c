@@ -82,7 +82,21 @@ char *fmode_to_char(int mode, char *name) {
     result = mx_strjoin_nleak(result, ( (mode & S_IXGRP) ? "x" : "-"));
     result = mx_strjoin_nleak(result, ( (mode & S_IROTH) ? "r" : "-"));
     result = mx_strjoin_nleak(result, ( (mode & S_IWOTH) ? "w" : "-"));
-    result = mx_strjoin_nleak(result, ( (mode & S_IXOTH) ? "x" : "-"));
+
+    if (!(mode & S_IXUSR) && (S_ISUID & mode)){
+        result = mx_strjoin_nleak(result, "S");
+    }else if (!(mode & S_IXUSR) && (S_ISVTX & mode)){
+         result = mx_strjoin_nleak(result, "T");
+    }else if ((mode & S_IXUSR) && (S_ISVTX & mode)){
+         result = mx_strjoin_nleak(result, "t");
+    }else if ((mode & S_IXUSR) && (S_ISUID & mode)){
+        result = mx_strjoin_nleak(result, "s");
+    } else if ((mode & S_IXUSR) && (mode & S_IXOTH)){
+        result = mx_strjoin_nleak(result, "x");
+    } else {
+        result = mx_strjoin_nleak(result, "-");
+    }
+
     
     if (listxattr(name, NULL, 0, XATTR_NOFOLLOW) > 0) {
         result = mx_strjoin_nleak(result, "@");
