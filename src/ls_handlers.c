@@ -71,11 +71,24 @@ void correct_args_handler(char** pathes, int pathes_number, t_flags* flags) {
                 struct dirent** dirents = generate_dirent_array(pathes[path_index], &dirents_length, &dir);
                 char* full_path = generate_full_path(pathes[path_index]);
                 set_lf_info(&lf_info, dirents, dirents_length, full_path);
+                /*
+                lf_info->totals[index].index = path_index;
+                lf_info->totals[index].total = lf_info->total;
+
+                */
+                push_total_list(&lf_info->total_head, lf_info->total);
+
+                if (lf_info->current_total == NULL) {
+                    lf_info->current_total = lf_info->total_head;
+                }
+
+                lf_info->total = 0;
                 free(dirents);
                 free(full_path);
                 closedir(dir);
             } else {
                 set_lf_info_for_path(&lf_info, pathes[path_index]);
+                lf_info->total = 0;
             }
         }
     }
@@ -149,6 +162,12 @@ void directories_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_
                 mx_printstr(":\n");
             }
             if (flags->l_flag) {
+                mx_printstr("total ");
+                mx_printint(lf_info->current_total->total_blocks);
+                mx_printchar('\n');
+
+                lf_info->current_total = lf_info->current_total->next;
+
                 l_flag_print(pathes[path_index], lf_info);
             } else {
                 multiply_columns_print(pathes[path_index]);

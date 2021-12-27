@@ -9,9 +9,31 @@ t_lf_info* create_lf_info() {
     info->len_size = 0;
     info->total = 0;
 
+    info->total_head = NULL;
+    info->current_total = info->total_head;
 
     return info;
 }
+
+t_total* create_total_node(int total) {
+    t_total* node = (t_total*)malloc(sizeof(t_total));
+    node->next = NULL;
+    node->total_blocks = total;
+    return node;
+}
+
+void push_total_list(t_total** head, int total) {
+    if (*head == NULL) {
+        *head = create_total_node(total);
+    } else {
+        t_total* current = *head;
+        while (current->next != NULL)
+        {
+            current = current->next;
+        }
+        current->next = create_total_node(total);
+    }
+} 
 
 char *fmode_to_char(int mode, char *name) {
     char *result = mx_strnew(0);
