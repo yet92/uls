@@ -79,7 +79,7 @@ void multiply_columns_print(char *path) {
             // mx_printint(index);
             if (index >= length) continue;
 
-            if(opendir(dirents[index]->d_name)) {
+            if(is_directory(dirents[index]->d_name)) {
                 // mx_printstr(DRCT_CLR);
                 mx_printstr(dirents[index]->d_name);
                 // mx_printstr(DFLT_CLR); 
@@ -95,6 +95,7 @@ void multiply_columns_print(char *path) {
         }
         mx_printchar('\n');
     }
+    free(dirents);
     closedir(dir);
 
 }

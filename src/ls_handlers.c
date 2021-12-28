@@ -4,7 +4,7 @@ t_flags *create_t_flag() {
     t_flags *flag = (t_flags*)malloc(sizeof(t_flags));
     flag->l_flag = false;
     flag->no_flag = true;
-    
+    flag->wrong_flag = false;
 
     return flag;
 }
