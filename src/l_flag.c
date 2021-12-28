@@ -61,7 +61,7 @@ char *fmode_thirdch_check(int mode, int triad) {
         return "T";
     }else if ((mode & triad) && (S_ISVTX & mode)  && triad != S_IXUSR && triad != S_IXGRP){
         return "t";
-    }else if ((mode & triad) && (S_ISUID & mode) && triad != S_IXGRP){
+    }else if ((mode & triad) && (S_ISUID & mode) && triad != S_IXGRP && triad != S_IXOTH){
         return "s";
     } else if ((mode & triad)){
         return "x";
@@ -117,10 +117,11 @@ char *get_usr(unsigned int uid) {
     struct passwd *pws;
 
     pws = getpwuid(uid);
-
+    // printf("%d\n", uid);
     if(pws != NULL)
         result_str = mx_strdup(pws->pw_name);
-
+    else 
+        result_str = mx_itoa(uid);
     return result_str;
 }
 
@@ -132,7 +133,7 @@ char *get_group(unsigned int gid) {
     struct group *grp;
 
     grp = getgrgid(gid);
-
+    
     if(grp) {
         result_str = mx_strdup(grp->gr_name);
     } else {
@@ -279,24 +280,24 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
 
 void set_lf_info_for_path(t_lf_info** info, char* full_path) {
         
-        if (*info == NULL) {
-            *info = create_lf_info();
-        }
+    if (*info == NULL) {
+        *info = create_lf_info();
+    }
 
-        struct stat stat_info;
+    struct stat *stat_info = malloc(sizeof(struct stat));
 
 
-        lstat(full_path, &stat_info);
+    if(lstat(full_path, stat_info) != -1) {
 
         // printf("%s: %hu\n", full_path, stat_info.st_size);
 
-        (*info)->total += stat_info.st_blocks;
+        (*info)->total += stat_info->st_blocks;
 
         (*info)->len_rights = 11;
 
         // LINKS
         char *links = NULL;
-        links = mx_itoa(stat_info.st_nlink);
+        links = mx_itoa(stat_info->st_nlink);
         
         int len_links = mx_strlen(links);
         if (len_links > (*info)->len_links) (*info)->len_links = len_links;
@@ -304,7 +305,7 @@ void set_lf_info_for_path(t_lf_info** info, char* full_path) {
 
         // USER AND GROUP
         char *user = NULL; 
-        user = get_usr(stat_info.st_uid);        
+        user = get_usr(stat_info->st_uid);        
         if(user) {
             int len_user = mx_strlen(user);
             if (len_user > (*info)->len_user) (*info)->len_user  = len_user;
@@ -312,24 +313,26 @@ void set_lf_info_for_path(t_lf_info** info, char* full_path) {
         //ß
         
         char *group = NULL;
-        group = get_group(stat_info.st_gid);
+        group = get_group(stat_info->st_gid);
         if (group) {
             int len_group = mx_strlen(group);
             if (len_group > (*info)->len_group) (*info)->len_group = len_group;
         }
         
         // SIZE
+        if(!stat_info) mx_printerr("there\n");
         char *size = NULL;
-        size = mx_itoa(stat_info.st_size);
+        size = mx_itoa(stat_info->st_size);
 
         int len_size = mx_strlen(size);
         if (len_size > (*info)->len_size) (*info)->len_size = len_size;
-
 
         free(group);
         free(size);
         free(user);
         free(links);
+    }
+    free(stat_info);
 }
 
 
@@ -338,6 +341,7 @@ void set_lf_info(t_lf_info** info, struct dirent** dirents, int length, char *pa
     char *path_to_dir = NULL;
     
     for (int dir_index = 0; dir_index < length; dir_index++) {
+        // printf("full_path: %s\n", dirents[dir_index]->d_name);
         path_to_dir = mx_strjoin(path, dirents[dir_index]->d_name);
         set_lf_info_for_path(info, path_to_dir);
         

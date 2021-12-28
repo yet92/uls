@@ -1,6 +1,12 @@
 
 #include "basic.h"
 
+struct dirent* copy_dirent(struct dirent* src) {
+    struct dirent* copy = (struct dirent*)malloc(sizeof(struct dirent));
+    mx_strcpy(copy->d_name, src->d_name);
+    return copy;
+}
+
 int calculate_max_name_length(struct dirent *dirents[], int dirents_size) {
     int max_length = 0;
     for (int index = 0; index < dirents_size; index++) {
@@ -15,6 +21,7 @@ struct dirent** generate_dirent_array(char *path, int *length, DIR** to_close_di
     int array_length = 0;
     struct dirent* dirent = NULL;
     while ( (dirent = readdir(dir)) ) {
+
         if ( check_name(dirent->d_name) ) {
             array_length++;
         }
@@ -28,8 +35,9 @@ struct dirent** generate_dirent_array(char *path, int *length, DIR** to_close_di
     int index = 0;
     while ( (dirent = readdir(dir)) ) {
         if ( check_name(dirent->d_name) ) {
-            dirent_array[index] = dirent;
+            dirent_array[index] = copy_dirent(dirent);
             index++;
+
         }
     }
  
@@ -141,6 +149,9 @@ void sort_args(char **args, int left, int right) {
 }
 
 bool is_file_exist(char* path) {
-    struct stat st;
-    return (stat(path, &st) == 0);
+    struct stat *st = malloc(sizeof(struct stat));
+    
+    bool exists = (stat(path, st) == 0);
+    free(st);
+    return  exists;
 }

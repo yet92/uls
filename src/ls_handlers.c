@@ -37,8 +37,8 @@ void l_flag_without_args() {
 
     int dirents_length = 0;
     DIR* dir;
-    struct dirent** dirents = generate_dirent_array(".", &dirents_length, &dir);
     char* full_path = generate_full_path(".");
+    struct dirent** dirents = generate_dirent_array(".", &dirents_length, &dir);
 
     set_lf_info(&lf_info, dirents, dirents_length, full_path);
 
@@ -93,7 +93,7 @@ void check_args(int argc, char **argv) {
             argv_shift = 1;
         }
     }
-   
+    
     sort_args(argv + argv_shift, 0, argc - argv_shift - 1);
 
     // check on errors
@@ -116,7 +116,7 @@ char *generate_full_path(char *path) {
     else 
         full_path = mx_strjoin(path, NULL);
     
-    if(dir) 
+    if(dir)
         closedir(dir);
     
     return full_path;
@@ -132,46 +132,51 @@ void correct_args_handler(char** pathes, int pathes_number, t_flags* flags) {
     t_lf_info_node* current_lf_info = lf_info_list;
     int has_files = 0;
 
-    for (int path_index = 0; path_index < pathes_number; path_index++) {
-        if (pathes[path_index]) {
-            if (is_directory(pathes[path_index])) {
-                int dirents_length = 0;
-                DIR* dir;
-                struct dirent** dirents = generate_dirent_array(pathes[path_index], &dirents_length, &dir);
-                char* full_path = generate_full_path(pathes[path_index]);
 
-                t_lf_info_node* pushed = push_lf_info_list(&lf_info_list);
+    if (flags->l_flag) {
+        for (int path_index = 0; path_index < pathes_number; path_index++) {
+            if (pathes[path_index]) {
+                if (is_directory(pathes[path_index])) {
+                    int dirents_length = 0;
+                    DIR* dir;
+                    struct dirent** dirents = NULL;
 
-                if (current_lf_info == NULL) current_lf_info = pushed;
+                    char* full_path = generate_full_path(pathes[path_index]);
 
-                set_lf_info(&(pushed->lf_info), dirents, dirents_length, full_path);
-                /*
-                lf_info->totals[index].index = path_index;
-                lf_info->totals[index].total = lf_info->total;
+                    dirents = generate_dirent_array(pathes[path_index], &dirents_length, &dir);
 
-                */
-
-                // lf_info->total = 0;
-                free(dirents);
-                free(full_path);
-                closedir(dir);
-            } else {
-                
-                // TODO: edit if  -r
-                if (lf_info_list == NULL) {
                     t_lf_info_node* pushed = push_lf_info_list(&lf_info_list);
-                    current_lf_info = pushed;
+
+                    if (current_lf_info == NULL) current_lf_info = pushed;
+                    
+                    set_lf_info(&(pushed->lf_info), dirents, dirents_length, full_path);
+                    /*
+                    lf_info->totals[index].index = path_index;
+                    lf_info->totals[index].total = lf_info->total;
+
+                    */
+
+                    // lf_info->total = 0;
+                    free(dirents);
+                    free(full_path);
+                    closedir(dir);  
+                } else {
+                    
+                    // TODO: edit if  -r
+                    if (lf_info_list == NULL) {
+                        t_lf_info_node* pushed = push_lf_info_list(&lf_info_list);
+                        current_lf_info = pushed;
+                    }
+                    set_lf_info_for_path(&(lf_info_list->lf_info), pathes[path_index]);
+                    has_files = 1;
+                    // lf_info->total = 0;
                 }
-                set_lf_info_for_path(&(lf_info_list->lf_info), pathes[path_index]);
-                has_files = 1;
-                // lf_info->total = 0;
             }
         }
     }
     
-    
+    files_handler(pathes, pathes_number, flags, &current_lf_info);
     if (has_files) {
-        files_handler(pathes, pathes_number, flags, &current_lf_info);
         current_lf_info = current_lf_info->next;
     }
     directories_handler(pathes, pathes_number, flags, &current_lf_info);

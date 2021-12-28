@@ -34,6 +34,7 @@ void set_up_multiply_columns_data(int *column_width, int *columns_number, int *r
 }
 
 void set_up_multiply_columns_data_for_files(int *column_width, int *columns_number, int *rows_number, char** files, int files_number) {
+    
     int max_file_name_length = 0;
     for (int file_index = 0; file_index < files_number; file_index++) {
         int length = mx_strlen(files[file_index]);
@@ -63,7 +64,7 @@ void set_up_multiply_columns_data_for_files(int *column_width, int *columns_numb
 void multiply_columns_print(char *path) {
 
     int length = 0;
-    DIR* dir = NULL;
+    DIR* dir;
     struct dirent** dirents = generate_dirent_array(path, &length, &dir);
 
     int column_width;
@@ -79,14 +80,14 @@ void multiply_columns_print(char *path) {
             // mx_printint(index);
             if (index >= length) continue;
 
-            if(is_directory(dirents[index]->d_name)) {
-                // mx_printstr(DRCT_CLR);
-                mx_printstr(dirents[index]->d_name);
-                // mx_printstr(DFLT_CLR); 
-            } else {
-                mx_printstr(dirents[index]->d_name);
-            }
-                
+            // if(is_directory(dirents[index]->d_name)) {
+            //     // mx_printstr(DRCT_CLR);
+            //     mx_printstr(dirents[index]->d_name);
+            //     // mx_printstr(DFLT_CLR); 
+            // } else {
+            //     mx_printstr(dirents[index]->d_name);
+            // }
+            mx_printstr(dirents[index]->d_name);
             
             if (index + rows_number < length)
                 print_tab(column_width, dirents[index]->d_name);
@@ -101,6 +102,7 @@ void multiply_columns_print(char *path) {
 }
 
 void multiply_columns_files_print(char** pathes_to_files, int pathes_to_files_len) {
+    if (pathes_to_files_len == 0) return;
     int column_width;
     int columns_number;
     int rows_number;

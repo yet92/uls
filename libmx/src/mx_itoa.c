@@ -2,7 +2,7 @@
 #include "libmx.h"
 
 char *mx_itoa(int number) {
-    char *result;
+    char *result = NULL;
     if (number == 0) {
         result = (char *)malloc(sizeof(char) * 2);
         result[1] = '\0';
