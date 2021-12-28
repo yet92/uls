@@ -5,21 +5,12 @@
 #include "flags.h"
 #include "utils.h"
 
-// typedef struct s_total {
-//     int total_blocks; 
-//     struct s_total * next;
-// }              t_total;
-
 typedef struct s_lf_info {
     int len_rights;
     int len_links;
     int len_user;
     int len_group;
     int len_size;
-    // int date_month;
-    // int len_date_day;
-    // t_total *total_head;
-    // t_total *current_total;
     int total;
 }              t_lf_info;
 
@@ -33,9 +24,7 @@ typedef struct s_lf_info_node {
 
 t_lf_info* create_lf_info();
 t_lf_info_node* create_lf_info_node();
-// t_total* create_total_node();
 
-// void push_total_list(t_total** head, int total);
 t_lf_info_node* push_lf_info_list(t_lf_info_node** head);
 
 void free_lf_info_list(t_lf_info_node** head);

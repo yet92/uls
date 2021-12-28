@@ -12,8 +12,6 @@ char *mx_strcpy_inf(char *dst, const char *src) {
         dst[i] = src[i];
     }
     
-    // dst[i] = '\0'; 
-
     return dst;
 }
 
@@ -50,13 +48,11 @@ int mx_quicksort_dirent(struct dirent **dirents, int left, int right) {
         j_name = dirents[j]->d_name;
 
 
-        // while (i_len < anchor_len) {
         while(mx_strcmp(anchor_name, i_name) > 0)
         {
             i++;
             i_name = dirents[i]->d_name;
         }
-        // while (j_len > anchor_len) {
         while(mx_strcmp(anchor_name, j_name) < 0)
         {
             j--;

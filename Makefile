@@ -20,7 +20,7 @@ all: install
 install: $(LMXA) $(NAME)
 
 $(NAME): $(OBJS)
-	clang $(CFLAGS) $(OBJS) -L$(LMXDIR) -lmx -o $@
+	@clang $(CFLAGS) $(OBJS) -L$(LMXDIR) -lmx -o $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c $(INCS)
 	@clang $(CFLAGS) -c $< -o $@ -I$(INCDIR) -I$(LMXINC)

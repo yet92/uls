@@ -6,12 +6,6 @@
 #include "ls_handlers.h"
 
 int main(int argc, char* argv[]) {
-    // get_dirents_number("/usr/bin");
-
-    // multiply_columns_print("./libmx");
-    // char *str = generate_lflg_string("/Users/yzhuravlov/Applications");
-    // l_flag_print(argv[1]);
-    // mx_printstr(str);
 
     check_args(argc, argv);
 

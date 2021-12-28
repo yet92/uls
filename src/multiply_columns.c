@@ -1,6 +1,3 @@
-//
-// Created by zyzy9_0j on 23.12.2021.
-//
 #include "multiply_columns.h"
 
 void print_tab(int max_len, char *name) {
@@ -25,8 +22,6 @@ void set_up_multiply_columns_data(int *column_width, int *columns_number, int *r
 
 
     *columns_number = term_width / *column_width;
-
-    // if (*column_width * *columns_number > term_width && *columns_number > 1) (*columns_number)--;
     
     *rows_number = dirents_length / *columns_number;
 
@@ -53,8 +48,6 @@ void set_up_multiply_columns_data_for_files(int *column_width, int *columns_numb
 
 
     *columns_number = term_width / *column_width;
-
-    // if (*column_width * *columns_number > term_width && *columns_number > 1) (*columns_number)--;
     
     *rows_number = files_number / *columns_number;
 
@@ -77,16 +70,8 @@ void multiply_columns_print(char *path) {
     for (int row = 0; row < rows_number; row++) {
         for (int column = 0; column < columns_number; column++) {
             int index = row + (column * rows_number);
-            // mx_printint(index);
             if (index >= length) continue;
 
-            // if(is_directory(dirents[index]->d_name)) {
-            //     // mx_printstr(DRCT_CLR);
-            //     mx_printstr(dirents[index]->d_name);
-            //     // mx_printstr(DFLT_CLR); 
-            // } else {
-            //     mx_printstr(dirents[index]->d_name);
-            // }
             mx_printstr(dirents[index]->d_name);
             
             if (index + rows_number < length)
@@ -96,7 +81,7 @@ void multiply_columns_print(char *path) {
         }
         mx_printchar('\n');
     }
-    free(dirents);
+    free_dirents(&dirents, length);
     closedir(dir);
 
 }

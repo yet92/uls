@@ -10,12 +10,6 @@ t_flags *create_t_flag() {
 }
 
 void check_flag(char *data, t_flags *flag, char* illegal_flag_option) {
-    // if(!mx_strcmp(data, "-l"))
-    //     flag->l_flag = true;
-    // // write all flags
-    // else 
-    //     flag->wrong_flag = true;
-    // TODO: swith no flag to false
     for (int data_index = 1; data_index < mx_strlen(data); data_index++) {
         switch (data[data_index])
         {
@@ -48,12 +42,11 @@ void l_flag_without_args() {
     l_flag_print(full_path, lf_info);
 
     free(full_path);
-    free(dirents);
+    free_dirents(&dirents, dirents_length);
     closedir(dir);
 }
 
 void check_args(int argc, char **argv) {
-    // int file_counter = argc;
     t_flags *flag = create_t_flag();
     if(argc == 1) {
         flag->no_flag = true;
@@ -96,10 +89,6 @@ void check_args(int argc, char **argv) {
     
     sort_args(argv + argv_shift, 0, argc - argv_shift - 1);
 
-    // check on errors
-    // print all files
-    // print directories
-
     int exit_status = pathes_errors_print(argv + argv_shift, argc - argv_shift);
 
     correct_args_handler(argv + argv_shift, argc - argv_shift, flag);
@@ -123,11 +112,7 @@ char *generate_full_path(char *path) {
 }
 
 void correct_args_handler(char** pathes, int pathes_number, t_flags* flags) {
-    // set lf_info
-    // print files
-    // print dirs
 
-    // t_lf_info* lf_info = NULL;
     t_lf_info_node* lf_info_list = NULL;
     t_lf_info_node* current_lf_info = lf_info_list;
     int has_files = 0;
@@ -150,14 +135,8 @@ void correct_args_handler(char** pathes, int pathes_number, t_flags* flags) {
                     if (current_lf_info == NULL) current_lf_info = pushed;
                     
                     set_lf_info(&(pushed->lf_info), dirents, dirents_length, full_path);
-                    /*
-                    lf_info->totals[index].index = path_index;
-                    lf_info->totals[index].total = lf_info->total;
 
-                    */
-
-                    // lf_info->total = 0;
-                    free(dirents);
+                    free_dirents(&dirents, dirents_length);
                     free(full_path);
                     closedir(dir);  
                 } else {
@@ -169,7 +148,6 @@ void correct_args_handler(char** pathes, int pathes_number, t_flags* flags) {
                     }
                     set_lf_info_for_path(&(lf_info_list->lf_info), pathes[path_index]);
                     has_files = 1;
-                    // lf_info->total = 0;
                 }
             }
         }
@@ -183,7 +161,6 @@ void correct_args_handler(char** pathes, int pathes_number, t_flags* flags) {
 
     free_lf_info_list(&lf_info_list);
 
-    // free(lf_info);
 }
 
 bool is_nulls(char** pathes, int pathes_number) {
@@ -219,7 +196,6 @@ void files_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_info_n
                 }
             }
         }
-        // *lf_info_current = (*lf_info_current)->next;
     } else {
         char** files_pathes = (char**)malloc(sizeof(char*) * files_pathes_length);
         int f_pathes_index = 0;
@@ -257,7 +233,6 @@ void directories_handler(char** pathes, int pathes_number, t_flags* flags, t_lf_
                 if (get_dirents_number(pathes[path_index]) != 0)
                 {
                     mx_printstr("total ");
-                    // mx_printint(lf_info->current_total->total_blocks);
                     mx_printint((*lf_info_node)->lf_info->total);
                     mx_printchar('\n');
 

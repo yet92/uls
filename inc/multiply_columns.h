@@ -1,7 +1,3 @@
-//
-// Created by zyzy9_0j on 23.12.2021.
-//
-
 #ifndef ULS_MULTIPLY_COLUMNS_H
 #define ULS_MULTIPLY_COLUMNS_H
 

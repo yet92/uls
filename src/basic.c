@@ -45,13 +45,22 @@ struct dirent** generate_dirent_array(char *path, int *length, DIR** to_close_di
     return dirent_array;
 }
 
+void free_dirents(struct dirent ***dirents, int dirents_length) {
+    struct dirent** dirents_ = *dirents;
+    for (int i = 0; i < dirents_length; i++) {
+        free(dirents_[i]);
+    }
+    free(dirents_);
+    *dirents = NULL;
+}
+
 int get_dirents_number(char* path) {
     DIR* dir = NULL;
     int dirents_length = 0;
 
     struct dirent **dirents = generate_dirent_array(path, &dirents_length, &dir);
 
-    free(dirents);
+    free_dirents(&dirents, dirents_length);
     closedir(dir);
 
     return dirents_length;
@@ -117,13 +126,12 @@ void sort_args(char **args, int left, int right) {
         j_name = args[j];
 
 
-        // while (i_len < anchor_len) {
         while(args_comparator(anchor_name, i_name) > 0)
         {
             i++;
             i_name = args[i];
         }
-        // while (j_len > anchor_len) {
+
         while(args_comparator(anchor_name, j_name) < 0)
         {
             j--;

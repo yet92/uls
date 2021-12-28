@@ -63,7 +63,9 @@ char *fmode_thirdch_check(int mode, int triad) {
         return "t";
     }else if ((mode & triad) && (S_ISUID & mode) && triad != S_IXGRP && triad != S_IXOTH){
         return "s";
-    } else if ((mode & triad)){
+    } else if ((mode & triad) && (S_ISGID & mode) && triad != S_IXUSR && triad != S_IXOTH){
+        return "s";
+    }else if ((mode & triad)){
         return "x";
     } else {
         return "-";
@@ -117,7 +119,7 @@ char *get_usr(unsigned int uid) {
     struct passwd *pws;
 
     pws = getpwuid(uid);
-    // printf("%d\n", uid);
+
     if(pws != NULL)
         result_str = mx_strdup(pws->pw_name);
     else 
@@ -127,7 +129,7 @@ char *get_usr(unsigned int uid) {
 
 char *get_group(unsigned int gid) {
 
-    // TODO: if grp == NULL add gid as string
+    
     char *result_str = NULL;
 
     struct group *grp;
@@ -173,12 +175,7 @@ char *get_link(char* path) {
     ssize_t bytes, bufsize;
     bufsize = PATH_MAX;
 
-    // if (mode == 0){
-    //     bufsize = PATH_MAX;
-    // }
-
     char *link_to = mx_strnew(bufsize);
-    // char *buff = NULL;
     bytes = readlink(path, link_to, bufsize);
     return link_to;
 }
@@ -187,7 +184,6 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
     
     
     char *result_str = mx_strnew_with(get_lf_table_width(info) + mx_strlen(path), ' ');
-    // char *result = result_str;
     int shift = 0;
 
     struct stat stat_info;
@@ -198,7 +194,6 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
     // RIGHTS
     char *rights = NULL;
     rights = fmode_to_char(stat_info.st_mode, path);
-    // result_str = mx_strjoin(result_str, rights);
     mx_strcpy_inf(result_str, rights);
     shift += (info->len_rights + 1); // 1 space
 
@@ -213,7 +208,6 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
     shift -= spaces;
     shift += (info->len_links + 1);
 
-    // result_str = mx_strjoin(result_str, links);
 
     // USER AND GROUP
     char *user = NULL; 
@@ -221,34 +215,22 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
 
     mx_strcpy_inf(result_str + shift, user);
     shift += (info->len_user + 2);
-    //
-    // result_str = mx_strjoin(result_str, user);
     
     char *group = NULL;
     group = get_group(stat_info.st_gid);
     mx_strcpy_inf(result_str + shift, group);
     shift += (info->len_group + 2);
 
-    // result_str = mx_strjoin(result_str, group);
 
     // SIZE
     char *size = NULL;
     size = mx_itoa(stat_info.st_size);
-    
-    // mx_printint(info->len_group);
-    // mx_printchar('\n');
-    // mx_printint(mx_strlen(size));
-    // mx_printchar('\n');
-
     spaces = info->len_size - mx_strlen(size);
-    // mx_printint(spaces);
-    // mx_printchar('\n');
     shift += spaces;
     mx_strcpy_inf(result_str + shift, size);
     shift -= spaces;
     shift += (info->len_size + 1);
 
-    // result_str = mx_strjoin(result_str, size);
 
     // CHANGE DATE
     char *date = NULL;
@@ -256,7 +238,6 @@ char *generate_lflg_string(char *path, t_lf_info *info, char* name) {
     mx_strcpy_inf(result_str + shift, date);
     shift += (12 + 1);
 
-    // printf("\n\n DATE: %s\n\n", date);
 
     mx_strcpy(result_str + shift, name);
 
@@ -289,7 +270,6 @@ void set_lf_info_for_path(t_lf_info** info, char* full_path) {
 
     if(lstat(full_path, stat_info) != -1) {
 
-        // printf("%s: %hu\n", full_path, stat_info.st_size);
 
         (*info)->total += stat_info->st_blocks;
 
@@ -301,7 +281,6 @@ void set_lf_info_for_path(t_lf_info** info, char* full_path) {
         
         int len_links = mx_strlen(links);
         if (len_links > (*info)->len_links) (*info)->len_links = len_links;
-        // 
 
         // USER AND GROUP
         char *user = NULL; 
@@ -341,12 +320,10 @@ void set_lf_info(t_lf_info** info, struct dirent** dirents, int length, char *pa
     char *path_to_dir = NULL;
     
     for (int dir_index = 0; dir_index < length; dir_index++) {
-        // printf("full_path: %s\n", dirents[dir_index]->d_name);
         path_to_dir = mx_strjoin(path, dirents[dir_index]->d_name);
         set_lf_info_for_path(info, path_to_dir);
         
         free(path_to_dir);
-        // free(rights);
     }
 }
 
@@ -367,7 +344,6 @@ int get_lf_table_width(t_lf_info *info) {
 
 void l_flag_print(char *path, t_lf_info* lf_info) {
 
-    // t_lf_info* lf_info  = NULL;
 
     char* full_path = NULL;
 
@@ -379,13 +355,10 @@ void l_flag_print(char *path, t_lf_info* lf_info) {
     struct dirent** dirents = generate_dirent_array(full_path, &dir_length, &dir);
     mx_quicksort_dirent(dirents, 0, dir_length - 1);
 
-    // set_lf_info(&lf_info, dirents, dir_length, full_path);
 
     free(full_path);
 
-    // mx_printstr("total: ");
-    // mx_printint(lf_info->total);
-    // mx_printchar('\n');
+    
     for (int index = 0; index < dir_length; index++) {
 
         char* full_path = NULL;
@@ -407,6 +380,5 @@ void l_flag_print(char *path, t_lf_info* lf_info) {
 
     }
     closedir(dir);
-    // free(lf_info);
-    free(dirents);
+    free_dirents(&dirents, dir_length);
 }
